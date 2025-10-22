@@ -2,17 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-@keyframes float {
+@keyframes floatUp {
   0% {
     opacity: 1;
-    transform: translate(-50%, -50%) translateY(0);
+    transform: translateY(0);
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, -50%) translateY(-80px);
+    transform: translateY(-60px);
   }
-}
-
-.animate-float {
-  animation: float 1s ease-out forwards;
 }

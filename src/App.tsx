@@ -8,10 +8,9 @@ export type TileType = 'grass' | 'tree' | 'eraser' | null;
 
 interface FloatingText {
   id: number;
-  text: string;
-  x: number;
-  y: number;
-  isPositive?: boolean;
+  amount: number;
+  isPositive: boolean;
+  location: 'inventory' | 'wallet';
 }
 
 function App() {
@@ -128,14 +127,13 @@ function App() {
         
         // Ajouter 1 pièce
         setMoney(prev => prev + 1);
-        
-        // Afficher le texte flottant pour le gain
+
+        // Afficher le texte flottant pour le gain en haut à droite
         const newText: FloatingText = {
           id: Date.now(),
-          text: '+1',
-          x: window.innerWidth / 2,
-          y: window.innerHeight / 2,
-          isPositive: true
+          amount: 1,
+          isPositive: true,
+          location: 'wallet'
         };
         setFloatingTexts(prev => [...prev, newText]);
         
@@ -151,12 +149,12 @@ function App() {
         }));
         setMoney(prev => prev - cost);
 
+        // Afficher le texte flottant pour la perte au-dessus de l'inventaire
         const newText: FloatingText = {
           id: Date.now(),
-          text: `-${cost}`,
-          x: window.innerWidth / 2,
-          y: window.innerHeight / 2,
-          isPositive: false
+          amount: cost,
+          isPositive: false,
+          location: 'inventory'
         };
         setFloatingTexts(prev => [...prev, newText]);
 
@@ -189,17 +187,24 @@ function App() {
       {floatingTexts.map((ft) => (
         <div
           key={ft.id}
-          className={`fixed text-4xl font-bold animate-float pointer-events-none ${
+          className={`fixed text-3xl font-bold pointer-events-none flex items-center gap-2 ${
             ft.isPositive ? 'text-green-400' : 'text-red-400'
           }`}
           style={{
-            left: ft.x,
-            top: ft.y,
-            transform: 'translate(-50%, -50%)',
-            animation: 'float 1s ease-out forwards'
+            ...(ft.location === 'wallet' ? {
+              top: '120px',
+              right: '32px',
+              animation: 'floatUp 1s ease-out forwards'
+            } : {
+              bottom: '180px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              animation: 'floatUp 1s ease-out forwards'
+            })
           }}
         >
-          {ft.text}
+          <span>{ft.isPositive ? '+' : '-'}{ft.amount}</span>
+          <Coins className="w-7 h-7 text-yellow-400" />
         </div>
       ))}
 
