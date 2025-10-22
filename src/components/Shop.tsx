@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { X, Home, User, Square } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { X, Home, User, Square, Droplets } from 'lucide-react';
 
 interface ShopProps {
   isOpen: boolean;
@@ -10,24 +10,62 @@ type TabType = 'materials' | 'buildings' | 'character';
 
 function Shop({ isOpen, onClose }: ShopProps) {
   const [activeTab, setActiveTab] = useState<TabType>('materials');
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft = 0;
+    }
+  }, [activeTab]);
 
   if (!isOpen) return null;
 
-  const renderItems = () => {
+  const renderItems = (tab: TabType) => {
     const totalColumns = 10;
     const items = Array(totalColumns * 3).fill(null);
 
     return (
-      <div className="overflow-x-auto pb-2">
+      <div key={tab} ref={scrollContainerRef} className="overflow-x-auto pb-2">
         <div className="grid grid-rows-3 gap-4 min-w-max">
           {[0, 1, 2].map((row) => (
             <div key={row} className="flex gap-4">
-              {items.slice(row * totalColumns, (row + 1) * totalColumns).map((_, index) => (
-                <div
-                  key={index}
-                  className="w-24 h-24 bg-slate-600 border-4 border-slate-700 hover:border-slate-500 transition-all flex-shrink-0"
-                />
-              ))}
+              {items.slice(row * totalColumns, (row + 1) * totalColumns).map((_, index) => {
+                const globalIndex = row * totalColumns + index;
+
+                return (
+                  <div
+                    key={`${tab}-${index}`}
+                    className="w-24 h-24 bg-slate-600 border-4 border-slate-700 hover:border-slate-500 transition-all flex-shrink-0 flex items-center justify-center relative"
+                  >
+                    {tab === 'materials' && globalIndex === 0 && (
+                      <Droplets className="w-16 h-16 text-blue-400" />
+                    )}
+                    {tab === 'buildings' && globalIndex === 0 && (
+                      <div className="relative w-full h-full flex items-center justify-center">
+                        <div className="w-16 h-16 relative">
+                          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-14 h-10 bg-amber-900 border-2 border-amber-950"></div>
+                          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-16 h-8 bg-red-800 border-2 border-red-950" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}></div>
+                          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 translate-x-1 w-4 h-5 bg-amber-950"></div>
+                        </div>
+                      </div>
+                    )}
+                    {tab === 'character' && globalIndex === 0 && (
+                      <div className="relative w-full h-full flex items-center justify-center">
+                        <div className="w-12 h-16 relative">
+                          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-amber-200 rounded-full border-2 border-amber-300"></div>
+                          <div className="absolute top-5 left-1/2 transform -translate-x-1/2 w-8 h-7 bg-blue-600 border-2 border-blue-700"></div>
+                          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-8 h-5 bg-amber-800">
+                            <div className="absolute top-0 left-0 w-3.5 h-full bg-amber-800"></div>
+                            <div className="absolute top-0 right-0 w-3.5 h-full bg-amber-800"></div>
+                          </div>
+                          <div className="absolute top-6 left-0 w-3 h-5 bg-amber-200 rounded-sm"></div>
+                          <div className="absolute top-6 right-0 w-3 h-5 bg-amber-200 rounded-sm"></div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           ))}
         </div>
@@ -101,7 +139,7 @@ function Shop({ isOpen, onClose }: ShopProps) {
         </div>
 
         <div className="flex-1 overflow-hidden">
-          {renderItems()}
+          {renderItems(activeTab)}
         </div>
       </div>
     </>
