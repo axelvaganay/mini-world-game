@@ -1,16 +1,24 @@
 import { TileType } from '../App';
-import { Eraser } from 'lucide-react';
+import { Eraser, Store } from 'lucide-react';
 
 interface InventoryProps {
   selectedTile: TileType;
   onSelectTile: (tile: TileType) => void;
+  onOpenShop: () => void;
 }
 
-function Inventory({ selectedTile, onSelectTile }: InventoryProps) {
+function Inventory({ selectedTile, onSelectTile, onOpenShop }: InventoryProps) {
   const slots: (TileType)[] = ['grass', 'tree', null, null, null, null, null, null, null, null];
 
   return (
     <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 flex gap-2 items-center">
+      <button
+        onClick={onOpenShop}
+        className="w-16 h-16 bg-slate-800 transition-all flex items-center justify-center border-4 border-slate-700 hover:border-slate-500 relative mr-2"
+      >
+        <Store className="w-8 h-8 text-yellow-400" />
+        <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-slate-900"></div>
+      </button>
       {slots.map((tile, index) => (
         <button
           key={index}

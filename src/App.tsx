@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import IsometricGrid from './components/IsometricGrid';
 import Inventory from './components/Inventory';
+import Shop from './components/Shop';
 import { Coins, Volume2, VolumeX } from 'lucide-react';
 
 export type TileType = 'grass' | 'tree' | 'eraser' | null;
@@ -20,6 +21,7 @@ function App() {
   const [floatingTexts, setFloatingTexts] = useState<FloatingText[]>([]);
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [backgroundMusicEnabled, setBackgroundMusicEnabled] = useState(false);
+  const [isShopOpen, setIsShopOpen] = useState(false);
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
   const [placeAudio] = useState(() => {
     let audioContext: AudioContext | null = null;
@@ -208,6 +210,11 @@ function App() {
       <Inventory
         selectedTile={selectedTile}
         onSelectTile={setSelectedTile}
+        onOpenShop={() => setIsShopOpen(true)}
+      />
+      <Shop
+        isOpen={isShopOpen}
+        onClose={() => setIsShopOpen(false)}
       />
     </div>
   );
