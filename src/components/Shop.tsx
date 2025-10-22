@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Package, Home, User } from 'lucide-react';
+import { X, Home, User, Square } from 'lucide-react';
 
 interface ShopProps {
   isOpen: boolean;
@@ -14,17 +14,18 @@ function Shop({ isOpen, onClose }: ShopProps) {
   if (!isOpen) return null;
 
   const renderItems = () => {
-    const items = Array(12).fill(null);
+    const totalColumns = 10;
+    const items = Array(totalColumns * 3).fill(null);
 
     return (
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto pb-2">
         <div className="grid grid-rows-3 gap-4 min-w-max">
           {[0, 1, 2].map((row) => (
             <div key={row} className="flex gap-4">
-              {items.slice(row * 4, (row + 1) * 4).map((_, index) => (
+              {items.slice(row * totalColumns, (row + 1) * totalColumns).map((_, index) => (
                 <div
                   key={index}
-                  className="w-24 h-24 bg-slate-600 border-4 border-slate-700 hover:border-slate-500 transition-all"
+                  className="w-24 h-24 bg-slate-600 border-4 border-slate-700 hover:border-slate-500 transition-all flex-shrink-0"
                 />
               ))}
             </div>
@@ -42,11 +43,20 @@ function Shop({ isOpen, onClose }: ShopProps) {
       />
 
       <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-slate-800 border-4 border-slate-700 rounded-lg p-8 z-50 w-[600px] max-h-[80vh] flex flex-col">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-bold text-slate-100">Boutique</h2>
+        <div className="flex justify-center items-center mb-6 relative">
+          <img
+            src="https://images.pexels.com/lib/api/pexels.png"
+            alt="SHOP"
+            className="h-16 object-contain"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.nextElementSibling?.classList.remove('hidden');
+            }}
+          />
+          <h2 className="text-4xl font-bold text-yellow-400 tracking-wider hidden">SHOP</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-slate-700 rounded transition-all"
+            className="absolute right-0 p-2 hover:bg-slate-700 rounded transition-all"
           >
             <X className="w-8 h-8 text-slate-300" />
           </button>
@@ -61,7 +71,7 @@ function Shop({ isOpen, onClose }: ShopProps) {
                 : 'bg-slate-700 border-4 border-slate-700 hover:border-slate-500'
             }`}
           >
-            <Package className="w-5 h-5 text-slate-100" />
+            <Square className="w-5 h-5 text-amber-600 fill-amber-700" />
             <span className="text-lg font-semibold text-slate-100">Materials</span>
           </button>
 
