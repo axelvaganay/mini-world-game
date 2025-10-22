@@ -9,9 +9,11 @@ const TILE_HEIGHT = 32;
 interface IsometricGridProps {
   placedTiles: Record<string, TileType>;
   onTileClick: (tileId: string) => void;
+  zoom: number;
+  pan: { x: number; y: number };
 }
 
-function IsometricGrid({ placedTiles, onTileClick }: IsometricGridProps) {
+function IsometricGrid({ placedTiles, onTileClick, zoom, pan }: IsometricGridProps) {
   const [hoveredTile, setHoveredTile] = useState<string | null>(null);
 
   const tiles = [];
@@ -40,6 +42,11 @@ function IsometricGrid({ placedTiles, onTileClick }: IsometricGridProps) {
         width={GRID_SIZE * TILE_WIDTH + 100}
         height={GRID_SIZE * TILE_HEIGHT + 100}
         className="overflow-visible"
+        style={{
+          transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+          transformOrigin: 'center center',
+          transition: 'transform 0.1s ease-out'
+        }}
       >
         <g transform={`translate(${GRID_SIZE * TILE_WIDTH / 2 + 50}, 50)`}>
           {tiles.map((tile) => (

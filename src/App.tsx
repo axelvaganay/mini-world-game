@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import IsometricGrid from './components/IsometricGrid';
 import Inventory from './components/Inventory';
 import Shop from './components/Shop';
-import { Coins, Volume2, VolumeX } from 'lucide-react';
+import InventoryModal from './components/InventoryModal';
+import { Coins, Volume2, VolumeX, RotateCcw } from 'lucide-react';
 
 export type TileType = 'grass' | 'tree' | 'eraser' | null;
 
@@ -21,6 +22,14 @@ function App() {
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [backgroundMusicEnabled, setBackgroundMusicEnabled] = useState(false);
   const [isShopOpen, setIsShopOpen] = useState(false);
+  const [isInventoryOpen, setIsInventoryOpen] = useState(false);
+  const [inventorySlots, setInventorySlots] = useState<(TileType)[]>([
+    'grass', 'tree', null, null, null, null, null, null, null, null
+  ]);
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
   const [placeAudio] = useState(() => {
     let audioContext: AudioContext | null = null;
@@ -108,6 +117,49 @@ function App() {
     }
   }, [backgroundMusicEnabled]);
 
+  // Gestion du zoom avec la molette
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+    const newZoom = Math.max(0.1, Math.min(3, zoom * delta));
+    setZoom(newZoom);
+  };
+
+  // Gestion du déplacement avec clic-glisser
+  const handleMouseDown = (e: React.MouseEvent) => {
+    // Seulement si on clique sur le conteneur principal, pas sur les tuiles
+    if (e.target === e.currentTarget && (e.button === 1 || (e.button === 0 && e.ctrlKey))) {
+      e.preventDefault();
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging) {
+      setPan({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // Réinitialiser la vue
+  const resetView = () => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
+
+  // Gestion du drag & drop pour l'inventaire
+  const handleInventoryDragStart = (item: TileType, fromSlot: number) => {
+    // Cette fonction est appelée quand on commence à drag depuis l'inventaire modal
+    console.log('Drag started from inventory:', item, fromSlot);
+  };
+
   const handleTileClick = (tileId: string) => {
     // Initialiser l'audio au premier clic utilisateur
     if (!audioInitialized) {
@@ -164,13 +216,16 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-8">
+    <div 
+      className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-8 overflow-hidden"
+      onWheel={handleWheel}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+      style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+    >
       <div className="fixed top-8 right-8 flex items-center gap-4">
-        <div className="flex items-center gap-2 bg-slate-800 px-6 py-3 rounded-lg border-4 border-slate-700">
-          <Coins className="w-8 h-8 text-yellow-400" />
-          <span className="text-3xl font-bold text-yellow-400">{money}</span>
-        </div>
-        
         <button
           onClick={() => setBackgroundMusicEnabled(!backgroundMusicEnabled)}
           className="bg-slate-800 px-4 py-3 rounded-lg border-4 border-slate-700 hover:border-slate-500 transition-all"
@@ -182,6 +237,19 @@ function App() {
             <VolumeX className="w-8 h-8 text-slate-400" />
           )}
         </button>
+        
+        <button
+          onClick={resetView}
+          className="bg-slate-800 px-4 py-3 rounded-lg border-4 border-slate-700 hover:border-slate-500 transition-all"
+          title="Réinitialiser la vue"
+        >
+          <RotateCcw className="w-8 h-8 text-blue-400" />
+        </button>
+        
+        <div className="flex items-center gap-2 bg-slate-800 px-6 py-3 rounded-lg border-4 border-slate-700">
+          <Coins className="w-8 h-8 text-yellow-400" />
+          <span className="text-3xl font-bold text-yellow-400">{money}</span>
+        </div>
       </div>
 
       {floatingTexts.map((ft) => (
@@ -211,15 +279,25 @@ function App() {
       <IsometricGrid
         placedTiles={placedTiles}
         onTileClick={handleTileClick}
+        zoom={zoom}
+        pan={pan}
       />
       <Inventory
         selectedTile={selectedTile}
         onSelectTile={setSelectedTile}
         onOpenShop={() => setIsShopOpen(true)}
+        onOpenInventory={() => setIsInventoryOpen(true)}
+        inventorySlots={inventorySlots}
+        onInventorySlotChange={setInventorySlots}
       />
       <Shop
         isOpen={isShopOpen}
         onClose={() => setIsShopOpen(false)}
+      />
+      <InventoryModal
+        isOpen={isInventoryOpen}
+        onClose={() => setIsInventoryOpen(false)}
+        onDragStart={handleInventoryDragStart}
       />
     </div>
   );

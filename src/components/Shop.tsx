@@ -83,7 +83,7 @@ function Shop({ isOpen, onClose }: ShopProps) {
       <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-slate-800 border-4 border-slate-700 rounded-lg p-8 z-50 w-[600px] max-h-[80vh] flex flex-col">
         <div className="flex justify-center items-center mb-6 relative">
           <img
-            src="https://images.pexels.com/lib/api/pexels.png"
+            src="/asset/shop.png"
             alt="SHOP"
             className="h-16 object-contain"
             onError={(e) => {
