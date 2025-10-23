@@ -9,11 +9,14 @@ const TILE_HEIGHT = 32;
 interface IsometricGridProps {
   placedTiles: Record<string, TileType>;
   onTileClick: (tileId: string) => void;
+  onTileHover: (tileId: string) => void;
+  onTileLeave: () => void;
   zoom: number;
   pan: { x: number; y: number };
+  hutPreviewTiles: string[];
 }
 
-function IsometricGrid({ placedTiles, onTileClick, zoom, pan }: IsometricGridProps) {
+function IsometricGrid({ placedTiles, onTileClick, onTileHover, onTileLeave, zoom, pan, hutPreviewTiles }: IsometricGridProps) {
   const [hoveredTile, setHoveredTile] = useState<string | null>(null);
 
   const tiles = [];
@@ -31,6 +34,7 @@ function IsometricGrid({ placedTiles, onTileClick, zoom, pan }: IsometricGridPro
         row,
         col,
         isHovered: hoveredTile === tileId,
+        isHutPreview: hutPreviewTiles.includes(tileId),
         tileType: placedTiles[tileId] || null,
       });
     }
@@ -57,9 +61,16 @@ function IsometricGrid({ placedTiles, onTileClick, zoom, pan }: IsometricGridPro
               width={TILE_WIDTH}
               height={TILE_HEIGHT}
               isHovered={tile.isHovered}
+              isHutPreview={tile.isHutPreview}
               tileType={tile.tileType}
-              onMouseEnter={() => setHoveredTile(tile.id)}
-              onMouseLeave={() => setHoveredTile(null)}
+              onMouseEnter={() => {
+                setHoveredTile(tile.id);
+                onTileHover(tile.id);
+              }}
+              onMouseLeave={() => {
+                setHoveredTile(null);
+                onTileLeave();
+              }}
               onClick={() => onTileClick(tile.id)}
             />
           ))}

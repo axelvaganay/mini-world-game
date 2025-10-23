@@ -32,6 +32,7 @@ function App() {
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [hutPreviewTiles, setHutPreviewTiles] = useState<string[]>([]);
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
   const [placeAudio] = useState(() => {
     let audioContext: AudioContext | null = null;
@@ -75,6 +76,28 @@ function App() {
     water: 0,
     hut: 0,
     villagers: 0,
+  };
+
+  // Fonction pour calculer les 4 cases adjacentes pour une hutte
+  const getHutTiles = (centerTileId: string): string[] => {
+    const [row, col] = centerTileId.split('-').map(Number);
+    return [
+      `${row}-${col}`,           // Case centrale
+      `${row}-${col + 1}`,       // Droite
+      `${row + 1}-${col}`,       // Bas
+      `${row + 1}-${col + 1}`    // Diagonale bas-droite
+    ];
+  };
+
+  // Fonction pour vérifier si les 4 cases sont vides
+  const areHutTilesEmpty = (tileIds: string[]): boolean => {
+    return tileIds.every(tileId => {
+      const [row, col] = tileId.split('-').map(Number);
+      // Vérifier que la case est dans les limites de la grille
+      if (row < 0 || row >= 10 || col < 0 || col >= 10) return false;
+      // Vérifier que la case est vide
+      return !placedTiles[tileId];
+    });
   };
 
   useEffect(() => {
@@ -209,6 +232,24 @@ function App() {
     setPan({ x: 0, y: 0 });
   };
 
+  // Gestion du survol pour la prévisualisation de la hutte
+  const handleTileHover = (tileId: string) => {
+    if (selectedTile === 'hut') {
+      const hutTiles = getHutTiles(tileId);
+      if (areHutTilesEmpty(hutTiles)) {
+        setHutPreviewTiles(hutTiles);
+      } else {
+        setHutPreviewTiles([]);
+      }
+    } else {
+      setHutPreviewTiles([]);
+    }
+  };
+
+  const handleTileLeave = () => {
+    setHutPreviewTiles([]);
+  };
+
   // Gestion du drag & drop pour l'inventaire
   const handleInventoryDragStart = (item: TileType, fromSlot: number) => {
     // Cette fonction est appelée quand on commence à drag depuis l'inventaire modal
@@ -277,6 +318,34 @@ function App() {
         // Jouer le son
         placeAudio();
       }
+    } else if (selectedTile === 'hut') {
+      // Gestion spéciale pour la hutte (4 cases)
+      const hutTiles = getHutTiles(tileId);
+      const cost = tileCosts[selectedTile] || 0;
+      
+      if (money >= cost && areHutTilesEmpty(hutTiles)) {
+        // Placer la hutte sur les 4 cases
+        setPlacedTiles(prev => {
+          const newTiles = { ...prev };
+          hutTiles.forEach(tileId => {
+            newTiles[tileId] = 'hut';
+          });
+          return newTiles;
+        });
+        
+        setMoney(prev => prev - cost);
+
+        // Afficher le texte flottant pour la perte au-dessus de l'inventaire
+        const newText: FloatingText = {
+          id: Date.now(),
+          amount: cost,
+          isPositive: false,
+          location: 'inventory'
+        };
+        setFloatingTexts(prev => [...prev, newText]);
+
+        placeAudio();
+      }
     } else if (selectedTile) {
       const cost = tileCosts[selectedTile] || 0;
       if (money >= cost) {
@@ -310,7 +379,7 @@ function App() {
       onMouseLeave={handleMouseUp}
       style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
     >
-      <div className="fixed top-8 right-8 flex items-center gap-4">
+      <div className="fixed top-8 right-8 flex items-center gap-4 z-50">
         <button
           onClick={() => setBackgroundMusicEnabled(!backgroundMusicEnabled)}
           className="bg-slate-800 px-4 py-3 rounded-lg border-4 border-slate-700 hover:border-slate-500 transition-all"
@@ -364,8 +433,11 @@ function App() {
       <IsometricGrid
         placedTiles={placedTiles}
         onTileClick={handleTileClick}
+        onTileHover={handleTileHover}
+        onTileLeave={handleTileLeave}
         zoom={zoom}
         pan={pan}
+        hutPreviewTiles={hutPreviewTiles}
       />
       <Inventory
         selectedTile={selectedTile}

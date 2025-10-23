@@ -6,6 +6,7 @@ interface IsometricTileProps {
   width: number;
   height: number;
   isHovered: boolean;
+  isHutPreview: boolean;
   tileType: TileType;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
@@ -19,6 +20,7 @@ function IsometricTile({
   width,
   height,
   isHovered,
+  isHutPreview,
   tileType,
   onMouseEnter,
   onMouseLeave,
@@ -36,6 +38,7 @@ function IsometricTile({
   `;
 
   const getFillColor = () => {
+    if (isHutPreview) return '#fbbf24'; // Jaune pour la prévisualisation de la hutte
     if (isHovered) return '#fbbf24';
     if (tileType === 'grass') return '#22c55e';
     if (tileType === 'tree') return '#22c55e';
@@ -46,6 +49,7 @@ function IsometricTile({
   };
 
   const getStrokeColor = () => {
+    if (isHutPreview) return '#f59e0b'; // Orange pour la prévisualisation de la hutte
     if (isHovered) return '#f59e0b';
     if (tileType === 'grass') return '#16a34a';
     if (tileType === 'tree') return '#16a34a';
@@ -115,9 +119,10 @@ function IsometricTile({
           <rect x={x - 3} y={y + 10} width="3" height="3" fill="#15803d" />
           <rect x={x + 2} y={y + 8} width="3" height="3" fill="#15803d" />
 
-          <rect x={x - 15} y={y - 8} width="30" height="20" fill="#78350f" stroke="#451a03" strokeWidth="2" />
-          <polygon points={`${x},${y - 28} ${x + 20},${y - 8} ${x - 20},${y - 8}`} fill="#991b1b" stroke="#7f1d1d" strokeWidth="2" />
-          <rect x={x + 2} y={y - 2} width="8" height="10" fill="#451a03" />
+          {/* Hutte plus grande pour couvrir 4 cases */}
+          <rect x={x - 30} y={y - 8} width="60" height="40" fill="#78350f" stroke="#451a03" strokeWidth="2" />
+          <polygon points={`${x},${y - 48} ${x + 40},${y - 8} ${x - 40},${y - 8}`} fill="#991b1b" stroke="#7f1d1d" strokeWidth="2" />
+          <rect x={x + 2} y={y - 2} width="16" height="20" fill="#451a03" />
         </g>
       )}
       {tileType === 'villagers' && (
