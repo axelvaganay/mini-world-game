@@ -5,7 +5,7 @@ import Shop from './components/Shop';
 import InventoryModal from './components/InventoryModal';
 import { Coins, Volume2, VolumeX, RotateCcw } from 'lucide-react';
 
-export type TileType = 'grass' | 'tree' | 'eraser' | null;
+export type TileType = 'grass' | 'tree' | 'water' | 'hut' | 'villagers' | 'eraser' | null;
 
 interface FloatingText {
   id: number;
@@ -71,6 +71,9 @@ function App() {
   const tileCosts: Record<string, number> = {
     grass: 1,
     tree: 5,
+    water: 0,
+    hut: 0,
+    villagers: 0,
   };
 
   useEffect(() => {
@@ -173,6 +176,13 @@ function App() {
     if (money >= price) {
       setMoney(prev => prev - price);
       setUnlockedShopItems(prev => new Set([...prev, itemId]));
+
+      const emptySlotIndex = inventorySlots.findIndex(slot => slot === null);
+      if (emptySlotIndex !== -1) {
+        const newSlots = [...inventorySlots];
+        newSlots[emptySlotIndex] = itemId as TileType;
+        setInventorySlots(newSlots);
+      }
 
       const newText: FloatingText = {
         id: Date.now(),

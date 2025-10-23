@@ -1,5 +1,5 @@
 import { TileType } from '../App';
-import { Eraser, Store, Package } from 'lucide-react';
+import { Eraser, Store, Package, Droplets } from 'lucide-react';
 
 interface InventoryProps {
   selectedTile: TileType;
@@ -108,6 +108,34 @@ function Inventory({ selectedTile, onSelectTile, onOpenShop, onOpenInventory, in
               <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-green-700 rounded-sm"></div>
               <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 w-5 h-5 bg-green-700 rounded-sm"></div>
               <div className="absolute bottom-7 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-green-700 rounded-sm"></div>
+            </div>
+          )}
+          {tile === 'water' && (
+            <div className="w-full h-full bg-blue-400 flex items-center justify-center">
+              <Droplets className="w-10 h-10 text-blue-600" />
+            </div>
+          )}
+          {tile === 'hut' && (
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="w-12 h-12 relative">
+                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-10 h-7 bg-amber-900 border-2 border-amber-950"></div>
+                <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 w-12 h-6 bg-red-800 border-2 border-red-950" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}></div>
+                <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 translate-x-0.5 w-3 h-4 bg-amber-950"></div>
+              </div>
+            </div>
+          )}
+          {tile === 'villagers' && (
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="w-9 h-12 relative">
+                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-amber-200 rounded-full border-2 border-amber-300"></div>
+                <div className="absolute top-3 left-1/2 transform -translate-x-1/2 w-6 h-5 bg-blue-600 border-2 border-blue-700"></div>
+                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-6 h-4 bg-amber-800">
+                  <div className="absolute top-0 left-0 w-2.5 h-full bg-amber-800"></div>
+                  <div className="absolute top-0 right-0 w-2.5 h-full bg-amber-800"></div>
+                </div>
+                <div className="absolute top-4 left-0 w-2 h-4 bg-amber-200 rounded-sm"></div>
+                <div className="absolute top-4 right-0 w-2 h-4 bg-amber-200 rounded-sm"></div>
+              </div>
             </div>
           )}
         </button>
