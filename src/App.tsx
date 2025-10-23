@@ -14,14 +14,6 @@ interface FloatingText {
   location: 'inventory' | 'wallet';
 }
 
-interface CharacterAnimation {
-  tileId: string;
-  fromX: number;
-  fromY: number;
-  toX: number;
-  toY: number;
-  progress: number;
-}
 
 function App() {
   const [selectedTile, setSelectedTile] = useState<TileType>('grass');
@@ -40,7 +32,6 @@ function App() {
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [characterAnimations, setCharacterAnimations] = useState<Record<string, CharacterAnimation>>({});
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
   const [placeAudio] = useState(() => {
     let audioContext: AudioContext | null = null;
@@ -90,7 +81,7 @@ function App() {
     if (floatingTexts.length > 0) {
       const timer = setTimeout(() => {
         setFloatingTexts(prev => prev.slice(1));
-      }, 1000);
+      }, 1500); // Augmenté de 1000ms à 1500ms pour correspondre à l'animation CSS
       return () => clearTimeout(timer);
     }
   }, [floatingTexts]);
@@ -349,24 +340,24 @@ function App() {
       {floatingTexts.map((ft) => (
         <div
           key={ft.id}
-          className={`fixed text-3xl font-bold pointer-events-none flex items-center gap-2 ${
+          className={`fixed text-4xl font-bold pointer-events-none flex items-center gap-2 z-[100] animate-float ${
             ft.isPositive ? 'text-green-400' : 'text-red-400'
           }`}
           style={{
             ...(ft.location === 'wallet' ? {
               top: '120px',
               right: '32px',
-              animation: 'floatUp 1s ease-out forwards'
+              textShadow: '2px 2px 4px rgba(0,0,0,0.8)'
             } : {
               bottom: '180px',
               left: '50%',
               transform: 'translateX(-50%)',
-              animation: 'floatUp 1s ease-out forwards'
+              textShadow: '2px 2px 4px rgba(0,0,0,0.8)'
             })
           }}
         >
-          <span>{ft.isPositive ? '+' : '-'}{ft.amount}</span>
-          <Coins className="w-7 h-7 text-yellow-400" />
+          <span className="drop-shadow-lg">{ft.isPositive ? '+' : '-'}{ft.amount}</span>
+          <Coins className="w-8 h-8 text-yellow-400 drop-shadow-lg" />
         </div>
       ))}
 
