@@ -26,6 +26,7 @@ function App() {
   const [inventorySlots, setInventorySlots] = useState<(TileType)[]>([
     'grass', 'tree', null, null, null, null, null, null, null, null
   ]);
+  const [unlockedShopItems, setUnlockedShopItems] = useState<Set<string>>(new Set());
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -158,6 +159,29 @@ function App() {
   const handleInventoryDragStart = (item: TileType, fromSlot: number) => {
     // Cette fonction est appelée quand on commence à drag depuis l'inventaire modal
     console.log('Drag started from inventory:', item, fromSlot);
+  };
+
+  const handleUnlockShopItem = (itemId: string) => {
+    const itemPrices: Record<string, number> = {
+      water: 1,
+      hut: 50,
+      villagers: 0,
+    };
+
+    const price = itemPrices[itemId] || 0;
+
+    if (money >= price) {
+      setMoney(prev => prev - price);
+      setUnlockedShopItems(prev => new Set([...prev, itemId]));
+
+      const newText: FloatingText = {
+        id: Date.now(),
+        amount: price,
+        isPositive: false,
+        location: 'wallet'
+      };
+      setFloatingTexts(prev => [...prev, newText]);
+    }
   };
 
   const handleTileClick = (tileId: string) => {
@@ -293,6 +317,9 @@ function App() {
       <Shop
         isOpen={isShopOpen}
         onClose={() => setIsShopOpen(false)}
+        unlockedItems={unlockedShopItems}
+        onUnlockItem={handleUnlockShopItem}
+        currentMoney={money}
       />
       <InventoryModal
         isOpen={isInventoryOpen}

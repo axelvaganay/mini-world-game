@@ -1,16 +1,36 @@
 import { useState, useRef, useEffect } from 'react';
-import { X, Home, User, Square, Droplets } from 'lucide-react';
+import { X, Home, User, Square, Droplets, Lock } from 'lucide-react';
+import PurchaseModal from './PurchaseModal';
 
 interface ShopProps {
   isOpen: boolean;
   onClose: () => void;
+  unlockedItems: Set<string>;
+  onUnlockItem: (itemId: string) => void;
+  currentMoney: number;
 }
 
 type TabType = 'materials' | 'buildings' | 'character';
 
-function Shop({ isOpen, onClose }: ShopProps) {
+type ShopItem = {
+  id: string;
+  name: string;
+  price: number;
+  tab: TabType;
+  position: number;
+};
+
+const SHOP_ITEMS: ShopItem[] = [
+  { id: 'water', name: 'water', price: 1, tab: 'materials', position: 0 },
+  { id: 'hut', name: 'hut', price: 50, tab: 'buildings', position: 0 },
+  { id: 'villagers', name: 'villagers', price: 0, tab: 'character', position: 0 },
+];
+
+function Shop({ isOpen, onClose, unlockedItems, onUnlockItem, currentMoney }: ShopProps) {
   const [activeTab, setActiveTab] = useState<TabType>('materials');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<ShopItem | null>(null);
 
   useEffect(() => {
     if (scrollContainerRef.current) {
@@ -19,6 +39,53 @@ function Shop({ isOpen, onClose }: ShopProps) {
   }, [activeTab]);
 
   if (!isOpen) return null;
+
+  const handleItemClick = (item: ShopItem) => {
+    if (!unlockedItems.has(item.id)) {
+      setSelectedItem(item);
+      setPurchaseModalOpen(true);
+    }
+  };
+
+  const handlePurchase = () => {
+    if (selectedItem && currentMoney >= selectedItem.price) {
+      onUnlockItem(selectedItem.id);
+    }
+  };
+
+  const renderItemIcon = (tab: TabType, globalIndex: number) => {
+    if (tab === 'materials' && globalIndex === 0) {
+      return <Droplets className="w-16 h-16 text-blue-400" />;
+    }
+    if (tab === 'buildings' && globalIndex === 0) {
+      return (
+        <div className="relative w-full h-full flex items-center justify-center">
+          <div className="w-16 h-16 relative">
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-14 h-10 bg-amber-900 border-2 border-amber-950"></div>
+            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-16 h-8 bg-red-800 border-2 border-red-950" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}></div>
+            <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 translate-x-1 w-4 h-5 bg-amber-950"></div>
+          </div>
+        </div>
+      );
+    }
+    if (tab === 'character' && globalIndex === 0) {
+      return (
+        <div className="relative w-full h-full flex items-center justify-center">
+          <div className="w-12 h-16 relative">
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-amber-200 rounded-full border-2 border-amber-300"></div>
+            <div className="absolute top-5 left-1/2 transform -translate-x-1/2 w-8 h-7 bg-blue-600 border-2 border-blue-700"></div>
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-8 h-5 bg-amber-800">
+              <div className="absolute top-0 left-0 w-3.5 h-full bg-amber-800"></div>
+              <div className="absolute top-0 right-0 w-3.5 h-full bg-amber-800"></div>
+            </div>
+            <div className="absolute top-6 left-0 w-3 h-5 bg-amber-200 rounded-sm"></div>
+            <div className="absolute top-6 right-0 w-3 h-5 bg-amber-200 rounded-sm"></div>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
 
   const renderItems = (tab: TabType) => {
     const totalColumns = 10;
@@ -31,36 +98,23 @@ function Shop({ isOpen, onClose }: ShopProps) {
             <div key={row} className="flex gap-4">
               {items.slice(row * totalColumns, (row + 1) * totalColumns).map((_, index) => {
                 const globalIndex = row * totalColumns + index;
+                const shopItem = SHOP_ITEMS.find(
+                  item => item.tab === tab && item.position === globalIndex
+                );
+                const isLocked = shopItem && !unlockedItems.has(shopItem.id);
 
                 return (
                   <div
                     key={`${tab}-${index}`}
-                    className="w-24 h-24 bg-slate-600 border-4 border-slate-700 hover:border-slate-500 transition-all flex-shrink-0 flex items-center justify-center relative"
+                    className={`w-24 h-24 bg-slate-600 border-4 border-slate-700 transition-all flex-shrink-0 flex items-center justify-center relative ${
+                      shopItem ? 'hover:border-slate-500 cursor-pointer' : ''
+                    }`}
+                    onClick={() => shopItem && handleItemClick(shopItem)}
                   >
-                    {tab === 'materials' && globalIndex === 0 && (
-                      <Droplets className="w-16 h-16 text-blue-400" />
-                    )}
-                    {tab === 'buildings' && globalIndex === 0 && (
-                      <div className="relative w-full h-full flex items-center justify-center">
-                        <div className="w-16 h-16 relative">
-                          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-14 h-10 bg-amber-900 border-2 border-amber-950"></div>
-                          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-16 h-8 bg-red-800 border-2 border-red-950" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}></div>
-                          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 translate-x-1 w-4 h-5 bg-amber-950"></div>
-                        </div>
-                      </div>
-                    )}
-                    {tab === 'character' && globalIndex === 0 && (
-                      <div className="relative w-full h-full flex items-center justify-center">
-                        <div className="w-12 h-16 relative">
-                          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-amber-200 rounded-full border-2 border-amber-300"></div>
-                          <div className="absolute top-5 left-1/2 transform -translate-x-1/2 w-8 h-7 bg-blue-600 border-2 border-blue-700"></div>
-                          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-8 h-5 bg-amber-800">
-                            <div className="absolute top-0 left-0 w-3.5 h-full bg-amber-800"></div>
-                            <div className="absolute top-0 right-0 w-3.5 h-full bg-amber-800"></div>
-                          </div>
-                          <div className="absolute top-6 left-0 w-3 h-5 bg-amber-200 rounded-sm"></div>
-                          <div className="absolute top-6 right-0 w-3 h-5 bg-amber-200 rounded-sm"></div>
-                        </div>
+                    {renderItemIcon(tab, globalIndex)}
+                    {isLocked && (
+                      <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                        <Lock className="w-10 h-10 text-yellow-400" />
                       </div>
                     )}
                   </div>
@@ -142,6 +196,22 @@ function Shop({ isOpen, onClose }: ShopProps) {
           {renderItems(activeTab)}
         </div>
       </div>
+
+      {selectedItem && (
+        <PurchaseModal
+          isOpen={purchaseModalOpen}
+          onClose={() => {
+            setPurchaseModalOpen(false);
+            setSelectedItem(null);
+          }}
+          itemId={selectedItem.id}
+          itemName={selectedItem.name}
+          itemPrice={selectedItem.price}
+          currentMoney={currentMoney}
+          onPurchase={handlePurchase}
+          renderItemIcon={() => renderItemIcon(selectedItem.tab, selectedItem.position)}
+        />
+      )}
     </>
   );
 }
