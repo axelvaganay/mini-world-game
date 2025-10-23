@@ -14,6 +14,15 @@ interface FloatingText {
   location: 'inventory' | 'wallet';
 }
 
+interface CharacterAnimation {
+  tileId: string;
+  fromX: number;
+  fromY: number;
+  toX: number;
+  toY: number;
+  progress: number;
+}
+
 function App() {
   const [selectedTile, setSelectedTile] = useState<TileType>('grass');
   const [placedTiles, setPlacedTiles] = useState<Record<string, TileType>>({});
@@ -31,6 +40,7 @@ function App() {
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [characterAnimations, setCharacterAnimations] = useState<Record<string, CharacterAnimation>>({});
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
   const [placeAudio] = useState(() => {
     let audioContext: AudioContext | null = null;
@@ -120,6 +130,56 @@ function App() {
       backgroundMusicRef.current.pause();
     }
   }, [backgroundMusicEnabled]);
+
+  // Système de mouvement autonome des villageois avec animation
+  useEffect(() => {
+    const moveInterval = setInterval(() => {
+      setPlacedTiles(prevTiles => {
+        const newTiles = { ...prevTiles };
+        const villagersToMove: string[] = [];
+
+        // Trouver tous les villageois
+        Object.keys(newTiles).forEach(tileId => {
+          if (newTiles[tileId] === 'villagers') {
+            villagersToMove.push(tileId);
+          }
+        });
+
+        // Déplacer chaque villageois
+        villagersToMove.forEach(tileId => {
+          const [row, col] = tileId.split('-').map(Number);
+
+          // Trouver les cases adjacentes (haut, bas, gauche, droite)
+          const adjacentTiles = [
+            { row: row - 1, col, id: `${row - 1}-${col}` },
+            { row: row + 1, col, id: `${row + 1}-${col}` },
+            { row, col: col - 1, id: `${row}-${col - 1}` },
+            { row, col: col + 1, id: `${row}-${col + 1}` },
+          ];
+
+          // Filtrer pour ne garder que les cases grass valides
+          const validMoves = adjacentTiles.filter(tile =>
+            tile.row >= 0 && tile.row < 10 &&
+            tile.col >= 0 && tile.col < 10 &&
+            newTiles[tile.id] === 'grass'
+          );
+
+          // Choisir une direction aléatoire si possible
+          if (validMoves.length > 0) {
+            const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+
+            // Échanger villager et grass
+            newTiles[randomMove.id] = 'villagers';
+            newTiles[tileId] = 'grass';
+          }
+        });
+
+        return newTiles;
+      });
+    }, 2000); // Déplacement toutes les 2 secondes
+
+    return () => clearInterval(moveInterval);
+  }, []);
 
   // Gestion du zoom avec la molette
   const handleWheel = (e: React.WheelEvent) => {

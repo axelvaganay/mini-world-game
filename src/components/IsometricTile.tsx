@@ -10,6 +10,7 @@ interface IsometricTileProps {
   onMouseEnter: () => void;
   onMouseLeave: () => void;
   onClick: () => void;
+  animationOffset?: { x: number; y: number };
 }
 
 function IsometricTile({
@@ -22,6 +23,7 @@ function IsometricTile({
   onMouseEnter,
   onMouseLeave,
   onClick,
+  animationOffset = { x: 0, y: 0 },
 }: IsometricTileProps) {
   const halfWidth = width / 2;
   const halfHeight = height / 2;
@@ -119,7 +121,7 @@ function IsometricTile({
         </g>
       )}
       {tileType === 'villagers' && (
-        <g>
+        <g style={{ transition: 'transform 1.5s ease-in-out' }} transform={`translate(${animationOffset.x}, ${animationOffset.y})`}>
           <rect x={x - 8} y={y + 8} width="3" height="3" fill="#15803d" />
           <rect x={x - 3} y={y + 10} width="3" height="3" fill="#15803d" />
           <rect x={x + 2} y={y + 8} width="3" height="3" fill="#15803d" />
