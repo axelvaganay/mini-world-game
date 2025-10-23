@@ -335,6 +335,7 @@ function App() {
         isOpen={isInventoryOpen}
         onClose={() => setIsInventoryOpen(false)}
         onDragStart={handleInventoryDragStart}
+        unlockedItems={unlockedShopItems}
       />
     </div>
   );

@@ -6,6 +6,7 @@ interface InventoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   onDragStart: (item: TileType, fromSlot: number) => void;
+  unlockedItems: Set<string>;
 }
 
 type TabType = 'all' | 'material' | 'building' | 'character';
@@ -69,14 +70,19 @@ const inventoryItems: InventoryItem[] = [
   }
 ];
 
-function InventoryModal({ isOpen, onClose, onDragStart }: InventoryModalProps) {
+function InventoryModal({ isOpen, onClose, onDragStart, unlockedItems }: InventoryModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>('all');
 
   if (!isOpen) return null;
 
-  const filteredItems = activeTab === 'all' 
-    ? inventoryItems 
-    : inventoryItems.filter(item => item.type === activeTab);
+  // Toujours inclure grass et tree, et filtrer les autres selon le shop
+  const availableItems = inventoryItems.filter(item =>
+    item.id === 'grass' || item.id === 'tree' || unlockedItems.has(item.id)
+  );
+
+  const filteredItems = activeTab === 'all'
+    ? availableItems
+    : availableItems.filter(item => item.type === activeTab);
 
   const handleDragStart = (e: React.DragEvent, item: InventoryItem) => {
     e.dataTransfer.setData('text/plain', JSON.stringify({
