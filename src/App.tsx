@@ -5,13 +5,21 @@ import Shop from './components/Shop';
 import InventoryModal from './components/InventoryModal';
 import { Coins, Volume2, VolumeX, RotateCcw } from 'lucide-react';
 
-export type TileType = 'grass' | 'tree' | 'water' | 'hut' | 'villagers' | 'eraser' | null;
+export type TileType = 'grass' | 'tree' | 'water' | 'hut' | 'villagers' | 'stump' | 'eraser' | null;
 
 interface FloatingText {
   id: number;
   amount: number;
   isPositive: boolean;
   location: 'inventory' | 'wallet';
+}
+
+interface VillagerAction {
+  tileId: string;
+  action: 'cutting' | null;
+  targetTree: string | null;
+  startTime: number;
+  animationPhase: number;
 }
 
 
@@ -33,6 +41,7 @@ function App() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [hutPreviewTiles, setHutPreviewTiles] = useState<string[]>([]);
+  const [villagerActions, setVillagerActions] = useState<Record<string, VillagerAction>>({});
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
   const [placeAudio] = useState(() => {
     let audioContext: AudioContext | null = null;
@@ -76,6 +85,7 @@ function App() {
     water: 0,
     hut: 0,
     villagers: 0,
+    stump: 0,
   };
 
   // Fonction pour calculer les 4 cases adjacentes pour une hutte
@@ -145,7 +155,7 @@ function App() {
     }
   }, [backgroundMusicEnabled]);
 
-  // Système de mouvement autonome des villageois avec animation
+  // Système de mouvement autonome des villageois avec animation et coupe d'arbres
   useEffect(() => {
     const moveInterval = setInterval(() => {
       setPlacedTiles(prevTiles => {
@@ -165,11 +175,33 @@ function App() {
 
           // Trouver les cases adjacentes (haut, bas, gauche, droite)
           const adjacentTiles = [
-            { row: row - 1, col, id: `${row - 1}-${col}` },
-            { row: row + 1, col, id: `${row + 1}-${col}` },
-            { row, col: col - 1, id: `${row}-${col - 1}` },
-            { row, col: col + 1, id: `${row}-${col + 1}` },
+            { row: row - 1, col, id: `${row - 1}-${col}`, direction: 'up' },
+            { row: row + 1, col, id: `${row + 1}-${col}`, direction: 'down' },
+            { row, col: col - 1, id: `${row}-${col - 1}`, direction: 'left' },
+            { row, col: col + 1, id: `${row}-${col + 1}`, direction: 'right' },
           ];
+
+          // Vérifier s'il y a un arbre adjacent
+          const adjacentTree = adjacentTiles.find(tile =>
+            tile.row >= 0 && tile.row < 10 &&
+            tile.col >= 0 && tile.col < 10 &&
+            newTiles[tile.id] === 'tree'
+          );
+
+          if (adjacentTree) {
+            // Commencer à couper l'arbre
+            setVillagerActions(prev => ({
+              ...prev,
+              [tileId]: {
+                tileId,
+                action: 'cutting',
+                targetTree: adjacentTree.id,
+                startTime: Date.now(),
+                animationPhase: 0,
+              }
+            }));
+            return;
+          }
 
           // Filtrer pour ne garder que les cases grass valides
           const validMoves = adjacentTiles.filter(tile =>
@@ -190,9 +222,41 @@ function App() {
 
         return newTiles;
       });
-    }, 2000); // Déplacement toutes les 2 secondes
+    }, 2000);
 
     return () => clearInterval(moveInterval);
+  }, []);
+
+  // Gestion de l'animation de coupe d'arbre
+  useEffect(() => {
+    const animationInterval = setInterval(() => {
+      setVillagerActions(prev => {
+        const updated = { ...prev };
+        const now = Date.now();
+
+        Object.keys(updated).forEach(villagerId => {
+          const action = updated[villagerId];
+          if (action.action === 'cutting' && action.targetTree) {
+            const elapsed = now - action.startTime;
+            const newPhase = Math.floor((elapsed % 1500) / 500);
+            updated[villagerId] = { ...action, animationPhase: newPhase };
+
+            // Après 10 secondes, transformer l'arbre en souche
+            if (elapsed >= 10000) {
+              setPlacedTiles(prev => ({
+                ...prev,
+                [action.targetTree!]: 'stump'
+              }));
+              delete updated[villagerId];
+            }
+          }
+        });
+
+        return updated;
+      });
+    }, 100);
+
+    return () => clearInterval(animationInterval);
   }, []);
 
   // Gestion du zoom avec la molette
@@ -438,6 +502,7 @@ function App() {
         zoom={zoom}
         pan={pan}
         hutPreviewTiles={hutPreviewTiles}
+        villagerActions={villagerActions}
       />
       <Inventory
         selectedTile={selectedTile}

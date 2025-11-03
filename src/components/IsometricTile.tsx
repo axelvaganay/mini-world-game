@@ -1,5 +1,13 @@
 import { TileType } from '../App';
 
+interface VillagerAction {
+  tileId: string;
+  action: 'cutting' | null;
+  targetTree: string | null;
+  startTime: number;
+  animationPhase: number;
+}
+
 interface IsometricTileProps {
   x: number;
   y: number;
@@ -8,6 +16,7 @@ interface IsometricTileProps {
   isHovered: boolean;
   isHutPreview: boolean;
   tileType: TileType;
+  villagerAction: VillagerAction | null;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
   onClick: () => void;
@@ -22,6 +31,7 @@ function IsometricTile({
   isHovered,
   isHutPreview,
   tileType,
+  villagerAction,
   onMouseEnter,
   onMouseLeave,
   onClick,
@@ -38,24 +48,26 @@ function IsometricTile({
   `;
 
   const getFillColor = () => {
-    if (isHutPreview) return '#fbbf24'; // Jaune pour la prévisualisation de la hutte
+    if (isHutPreview) return '#fbbf24';
     if (isHovered) return '#fbbf24';
     if (tileType === 'grass') return '#22c55e';
     if (tileType === 'tree') return '#22c55e';
     if (tileType === 'water') return '#60a5fa';
     if (tileType === 'hut') return '#22c55e';
     if (tileType === 'villagers') return '#22c55e';
+    if (tileType === 'stump') return '#92400e';
     return '#6b7280';
   };
 
   const getStrokeColor = () => {
-    if (isHutPreview) return '#f59e0b'; // Orange pour la prévisualisation de la hutte
+    if (isHutPreview) return '#f59e0b';
     if (isHovered) return '#f59e0b';
     if (tileType === 'grass') return '#16a34a';
     if (tileType === 'tree') return '#16a34a';
     if (tileType === 'water') return '#3b82f6';
     if (tileType === 'hut') return '#16a34a';
     if (tileType === 'villagers') return '#16a34a';
+    if (tileType === 'stump') return '#78350f';
     return '#4b5563';
   };
 
@@ -125,6 +137,21 @@ function IsometricTile({
           <rect x={x + 2} y={y - 2} width="16" height="20" fill="#451a03" />
         </g>
       )}
+      {tileType === 'stump' && (
+        <g>
+          <rect x={x - 8} y={y + 8} width="3" height="3" fill="#15803d" />
+          <rect x={x - 3} y={y + 10} width="3" height="3" fill="#15803d" />
+          <rect x={x + 2} y={y + 8} width="3" height="3" fill="#15803d" />
+          <rect x={x - 6} y={y + 14} width="3" height="3" fill="#15803d" />
+          <rect x={x + 4} y={y + 13} width="3" height="3" fill="#15803d" />
+
+          <rect x={x - 6} y={y + 2} width="12" height="8" fill="#92400e" stroke="#78350f" strokeWidth="1" />
+          <ellipse cx={x} cy={y + 2} rx="6" ry="3" fill="#a16207" />
+          <circle cx={x - 2} cy={y + 4} r="1.5" fill="#78350f" />
+          <circle cx={x + 3} cy={y + 5} r="1" fill="#78350f" />
+          <circle cx={x + 1} cy={y + 7} r="1.5" fill="#78350f" />
+        </g>
+      )}
       {tileType === 'villagers' && (
         <g style={{ transition: 'transform 1.5s ease-in-out' }} transform={`translate(${animationOffset.x}, ${animationOffset.y})`}>
           <rect x={x - 8} y={y + 8} width="3" height="3" fill="#15803d" />
@@ -135,8 +162,39 @@ function IsometricTile({
           <rect x={x - 7} y={y - 16} width="14" height="12" rx="2" fill="#2563eb" stroke="#1e40af" strokeWidth="1" />
           <rect x={x - 7} y={y - 4} width="6" height="10" fill="#92400e" />
           <rect x={x + 1} y={y - 4} width="6" height="10" fill="#92400e" />
-          <rect x={x - 10} y={y - 14} width="4" height="8" fill="#fde68a" />
-          <rect x={x + 6} y={y - 14} width="4" height="8" fill="#fde68a" />
+
+          {villagerAction && villagerAction.action === 'cutting' && (
+            <>
+              {villagerAction.animationPhase === 0 && (
+                <>
+                  <rect x={x - 12} y={y - 14} width="4" height="10" fill="#fde68a" transform={`rotate(-20 ${x - 10} ${y - 14})`} />
+                  <rect x={x + 8} y={y - 14} width="4" height="10" fill="#fde68a" transform={`rotate(20 ${x + 10} ${y - 14})`} />
+                  <rect x={x + 8} y={y - 20} width="12" height="3" fill="#94a3b8" transform={`rotate(30 ${x + 14} ${y - 18})`} />
+                </>
+              )}
+              {villagerAction.animationPhase === 1 && (
+                <>
+                  <rect x={x - 10} y={y - 12} width="4" height="10" fill="#fde68a" transform={`rotate(-10 ${x - 8} ${y - 12})`} />
+                  <rect x={x + 6} y={y - 18} width="4" height="10" fill="#fde68a" transform={`rotate(40 ${x + 8} ${y - 18})`} />
+                  <rect x={x + 6} y={y - 25} width="12" height="3" fill="#94a3b8" transform={`rotate(50 ${x + 12} ${y - 23})`} />
+                </>
+              )}
+              {villagerAction.animationPhase === 2 && (
+                <>
+                  <rect x={x - 10} y={y - 18} width="4" height="10" fill="#fde68a" transform={`rotate(-40 ${x - 8} ${y - 18})`} />
+                  <rect x={x + 6} y={y - 12} width="4" height="10" fill="#fde68a" transform={`rotate(10 ${x + 8} ${y - 12})`} />
+                  <rect x={x + 4} y={y - 20} width="12" height="3" fill="#94a3b8" transform={`rotate(20 ${x + 10} ${y - 18})`} />
+                </>
+              )}
+            </>
+          )}
+
+          {(!villagerAction || villagerAction.action !== 'cutting') && (
+            <>
+              <rect x={x - 10} y={y - 14} width="4" height="8" fill="#fde68a" />
+              <rect x={x + 6} y={y - 14} width="4" height="8" fill="#fde68a" />
+            </>
+          )}
         </g>
       )}
     </g>

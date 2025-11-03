@@ -6,6 +6,14 @@ const GRID_SIZE = 10;
 const TILE_WIDTH = 64;
 const TILE_HEIGHT = 32;
 
+interface VillagerAction {
+  tileId: string;
+  action: 'cutting' | null;
+  targetTree: string | null;
+  startTime: number;
+  animationPhase: number;
+}
+
 interface IsometricGridProps {
   placedTiles: Record<string, TileType>;
   onTileClick: (tileId: string) => void;
@@ -14,9 +22,10 @@ interface IsometricGridProps {
   zoom: number;
   pan: { x: number; y: number };
   hutPreviewTiles: string[];
+  villagerActions: Record<string, VillagerAction>;
 }
 
-function IsometricGrid({ placedTiles, onTileClick, onTileHover, onTileLeave, zoom, pan, hutPreviewTiles }: IsometricGridProps) {
+function IsometricGrid({ placedTiles, onTileClick, onTileHover, onTileLeave, zoom, pan, hutPreviewTiles, villagerActions }: IsometricGridProps) {
   const [hoveredTile, setHoveredTile] = useState<string | null>(null);
 
   const tiles = [];
@@ -36,6 +45,7 @@ function IsometricGrid({ placedTiles, onTileClick, onTileHover, onTileLeave, zoo
         isHovered: hoveredTile === tileId,
         isHutPreview: hutPreviewTiles.includes(tileId),
         tileType: placedTiles[tileId] || null,
+        villagerAction: villagerActions[tileId] || null,
       });
     }
   }
@@ -63,6 +73,7 @@ function IsometricGrid({ placedTiles, onTileClick, onTileHover, onTileLeave, zoo
               isHovered={tile.isHovered}
               isHutPreview={tile.isHutPreview}
               tileType={tile.tileType}
+              villagerAction={tile.villagerAction}
               onMouseEnter={() => {
                 setHoveredTile(tile.id);
                 onTileHover(tile.id);
