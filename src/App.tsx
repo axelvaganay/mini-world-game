@@ -190,17 +190,23 @@ function App() {
           );
 
           if (adjacentTree) {
-            // Commencer à couper l'arbre
-            setVillagerActions(prev => ({
-              ...prev,
-              [tileId]: {
-                tileId,
-                action: 'cutting',
-                targetTree: adjacentTree.id,
-                startTime: Date.now(),
-                animationPhase: 0,
-              }
-            }));
+            // Commencer à couper l'arbre SEULEMENT si pas déjà en train de couper
+            setVillagerActions(prev => {
+              const current = prev[tileId];
+              // ✅ Si déjà en train de couper, ne rien changer
+              if (current && current.action === 'cutting') return prev;
+
+              return {
+                ...prev,
+                [tileId]: {
+                  tileId,
+                  action: 'cutting',
+                  targetTree: adjacentTree.id,
+                  startTime: Date.now(),
+                  animationPhase: 0,
+                }
+              };
+            });
             return;
           }
 
