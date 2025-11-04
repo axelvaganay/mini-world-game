@@ -42,6 +42,7 @@ function App() {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [hutPreviewTiles, setHutPreviewTiles] = useState<string[]>([]);
   const [villagerActions, setVillagerActions] = useState<Record<string, VillagerAction>>({});
+  const [treeLocks, setTreeLocks] = useState<Set<string>>(new Set());
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
   const [placeAudio] = useState(() => {
     let audioContext: AudioContext | null = null;
@@ -227,12 +228,38 @@ function App() {
     return () => clearInterval(moveInterval);
   }, []);
 
+  // Vérifier les arbres finis de coupe
+  useEffect(() => {
+    Object.keys(villagerActions).forEach(villagerId => {
+      const action = villagerActions[villagerId];
+      if (action.action === 'cutting' && action.targetTree) {
+        const elapsed = Date.now() - action.startTime;
+        if (elapsed >= 10000) {
+          setPlacedTiles(prev => ({
+            ...prev,
+            [action.targetTree!]: 'stump'
+          }));
+          setTreeLocks(prev => {
+            const newLocks = new Set(prev);
+            newLocks.delete(action.targetTree!);
+            return newLocks;
+          });
+          setVillagerActions(prev => {
+            const updated = { ...prev };
+            delete updated[villagerId];
+            return updated;
+          });
+        }
+      }
+    });
+  }, [villagerActions]);
+
   // Gestion de l'animation de coupe d'arbre
   useEffect(() => {
     const animationInterval = setInterval(() => {
-      setVillagerActions(prev => {
-        const updated = { ...prev };
+      setVillagerActions(prevActions => {
         const now = Date.now();
+        const updated = { ...prevActions };
 
         Object.keys(updated).forEach(villagerId => {
           const action = updated[villagerId];
@@ -240,15 +267,6 @@ function App() {
             const elapsed = now - action.startTime;
             const newPhase = Math.floor((elapsed % 1500) / 500);
             updated[villagerId] = { ...action, animationPhase: newPhase };
-
-            // Après 10 secondes, transformer l'arbre en souche
-            if (elapsed >= 10000) {
-              setPlacedTiles(prev => ({
-                ...prev,
-                [action.targetTree!]: 'stump'
-              }));
-              delete updated[villagerId];
-            }
           }
         });
 
