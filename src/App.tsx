@@ -239,6 +239,9 @@ function App() {
           if (action.action === 'cutting' && action.targetTree) {
             const elapsed = now - action.startTime;
             const newPhase = Math.floor((elapsed % 1500) / 500);
+            // ici
+            console.log(`[DEBUG] Villager ${villagerId} cutting tree ${action.targetTree}`);
+            console.log(` → elapsed = ${elapsed} ms, phase = ${newPhase}`);
             updated[villagerId] = { ...action, animationPhase: newPhase };
 
             // Après 10 secondes, transformer l'arbre en souche
