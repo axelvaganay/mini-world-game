@@ -28,7 +28,7 @@ interface VillagerAction {
 function App() {
   const [selectedTile, setSelectedTile] = useState<TileType>('grass');
   const [placedTiles, setPlacedTiles] = useState<Record<string, TileType>>({});
-  const [money, setMoney] = useState(100);
+  const [money, setMoney] = useState(1000);
   const [floatingTexts, setFloatingTexts] = useState<FloatingText[]>([]);
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [backgroundMusicEnabled, setBackgroundMusicEnabled] = useState(false);
