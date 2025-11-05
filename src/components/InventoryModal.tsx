@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { X, Package, Hammer, User, Grid3X3, Droplets } from 'lucide-react';
+import { X, Package, Hammer, User, Grid3X3 } from 'lucide-react';
 import { TileType } from '../App';
+import TileIconRenderer from './TileIconRenderer';
 
 interface InventoryModalProps {
   isOpen: boolean;
@@ -144,56 +145,9 @@ function InventoryModal({ isOpen, onClose, onDragStart, unlockedItems }: Invento
                 title={item.description}
               >
                 <div className="text-center">
-                  {item.tileType === 'grass' && (
-                    <div className="w-full h-16 bg-green-500 relative mb-2 rounded">
-                      <div className="absolute inset-0 grid grid-cols-4 grid-rows-4 gap-0.5 p-1">
-                        <div className="bg-green-700 col-start-1 row-start-1"></div>
-                        <div className="bg-green-700 col-start-3 row-start-1"></div>
-                        <div className="bg-green-700 col-start-2 row-start-2"></div>
-                        <div className="bg-green-700 col-start-4 row-start-2"></div>
-                        <div className="bg-green-700 col-start-1 row-start-3"></div>
-                        <div className="bg-green-700 col-start-3 row-start-3"></div>
-                        <div className="bg-green-700 col-start-2 row-start-4"></div>
-                        <div className="bg-green-700 col-start-4 row-start-4"></div>
-                      </div>
-                    </div>
-                  )}
-                  {item.tileType === 'tree' && (
-                    <div className="w-full h-16 bg-green-600 relative mb-2 rounded">
-                      <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-4 bg-amber-800"></div>
-                      <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-green-700 rounded-sm"></div>
-                      <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 w-5 h-5 bg-green-700 rounded-sm"></div>
-                      <div className="absolute bottom-7 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-green-700 rounded-sm"></div>
-                    </div>
-                  )}
-                  {item.tileType === 'water' && (
-                    <div className="w-full h-16 bg-blue-400 relative mb-2 rounded flex items-center justify-center">
-                      <Droplets className="w-12 h-12 text-blue-600" />
-                    </div>
-                  )}
-                  {item.tileType === 'hut' && (
-                    <div className="w-full h-16 relative mb-2 rounded flex items-center justify-center bg-slate-700">
-                      <div className="w-12 h-12 relative">
-                        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-10 h-7 bg-amber-900 border-2 border-amber-950"></div>
-                        <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 w-12 h-6 bg-red-800 border-2 border-red-950" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}></div>
-                        <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 translate-x-0.5 w-3 h-4 bg-amber-950"></div>
-                      </div>
-                    </div>
-                  )}
-                  {item.tileType === 'villagers' && (
-                    <div className="w-full h-16 relative mb-2 rounded flex items-center justify-center bg-slate-700">
-                      <div className="w-9 h-12 relative">
-                        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-amber-200 rounded-full border-2 border-amber-300"></div>
-                        <div className="absolute top-3 left-1/2 transform -translate-x-1/2 w-6 h-5 bg-blue-600 border-2 border-blue-700"></div>
-                        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-6 h-4 bg-amber-800">
-                          <div className="absolute top-0 left-0 w-2.5 h-full bg-amber-800"></div>
-                          <div className="absolute top-0 right-0 w-2.5 h-full bg-amber-800"></div>
-                        </div>
-                        <div className="absolute top-4 left-0 w-2 h-4 bg-amber-200 rounded-sm"></div>
-                        <div className="absolute top-4 right-0 w-2 h-4 bg-amber-200 rounded-sm"></div>
-                      </div>
-                    </div>
-                  )}
+                  <div className="w-full h-16 relative mb-2 rounded">
+                    <TileIconRenderer tileType={item.tileType} />
+                  </div>
                   <div className="text-sm font-medium text-white">{item.name}</div>
                 </div>
               </div>

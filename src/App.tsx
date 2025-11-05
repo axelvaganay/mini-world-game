@@ -4,6 +4,8 @@ import Inventory from './components/Inventory';
 import Shop from './components/Shop';
 import InventoryModal from './components/InventoryModal';
 import { Coins, Volume2, VolumeX, RotateCcw } from 'lucide-react';
+import { TILE_COSTS, SHOP_ITEM_PRICES } from './constants/tileCosts';
+import { getHutTiles, areHutTilesEmpty } from './utils/tileUtils';
 
 export type TileType = 'grass' | 'tree' | 'water' | 'hut' | 'villagers' | 'stump' | 'eraser' | null;
 
@@ -80,36 +82,6 @@ function App() {
     };
   });
 
-  const tileCosts: Record<string, number> = {
-    grass: 1,
-    tree: 5,
-    water: 0,
-    hut: 0,
-    villagers: 0,
-    stump: 0,
-  };
-
-  // Fonction pour calculer les 4 cases adjacentes pour une hutte
-  const getHutTiles = (centerTileId: string): string[] => {
-    const [row, col] = centerTileId.split('-').map(Number);
-    return [
-      `${row}-${col}`,           // Case centrale
-      `${row}-${col + 1}`,       // Droite
-      `${row + 1}-${col}`,       // Bas
-      `${row + 1}-${col + 1}`    // Diagonale bas-droite
-    ];
-  };
-
-  // Fonction pour vérifier si les 4 cases sont vides
-  const areHutTilesEmpty = (tileIds: string[]): boolean => {
-    return tileIds.every(tileId => {
-      const [row, col] = tileId.split('-').map(Number);
-      // Vérifier que la case est dans les limites de la grille
-      if (row < 0 || row >= 10 || col < 0 || col >= 10) return false;
-      // Vérifier que la case est vide
-      return !placedTiles[tileId];
-    });
-  };
 
   useEffect(() => {
     if (floatingTexts.length > 0) {
@@ -320,11 +292,10 @@ function App() {
     setPan({ x: 0, y: 0 });
   };
 
-  // Gestion du survol pour la prévisualisation de la hutte
   const handleTileHover = (tileId: string) => {
     if (selectedTile === 'hut') {
       const hutTiles = getHutTiles(tileId);
-      if (areHutTilesEmpty(hutTiles)) {
+      if (areHutTilesEmpty(hutTiles, placedTiles)) {
         setHutPreviewTiles(hutTiles);
       } else {
         setHutPreviewTiles([]);
@@ -345,13 +316,7 @@ function App() {
   };
 
   const handleUnlockShopItem = (itemId: string) => {
-    const itemPrices: Record<string, number> = {
-      water: 1,
-      hut: 50,
-      villagers: 0,
-    };
-
-    const price = itemPrices[itemId] || 0;
+    const price = SHOP_ITEM_PRICES[itemId] || 0;
 
     if (money >= price) {
       setMoney(prev => prev - price);
@@ -407,11 +372,10 @@ function App() {
         placeAudio();
       }
     } else if (selectedTile === 'hut') {
-      // Gestion spéciale pour la hutte (4 cases)
       const hutTiles = getHutTiles(tileId);
-      const cost = tileCosts[selectedTile] || 0;
-      
-      if (money >= cost && areHutTilesEmpty(hutTiles)) {
+      const cost = TILE_COSTS[selectedTile] || 0;
+
+      if (money >= cost && areHutTilesEmpty(hutTiles, placedTiles)) {
         // Placer la hutte sur les 4 cases
         setPlacedTiles(prev => {
           const newTiles = { ...prev };
@@ -435,7 +399,7 @@ function App() {
         placeAudio();
       }
     } else if (selectedTile) {
-      const cost = tileCosts[selectedTile] || 0;
+      const cost = TILE_COSTS[selectedTile] || 0;
       if (money >= cost) {
         setPlacedTiles(prev => ({
           ...prev,

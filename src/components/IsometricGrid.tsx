@@ -1,10 +1,7 @@
 import { useState } from 'react';
 import IsometricTile from './IsometricTile';
 import { TileType } from '../App';
-
-const GRID_SIZE = 10;
-const TILE_WIDTH = 64;
-const TILE_HEIGHT = 32;
+import { GRID_SIZE, TILE_WIDTH, TILE_HEIGHT } from '../constants/gridConfig';
 
 interface VillagerAction {
   tileId: string;
