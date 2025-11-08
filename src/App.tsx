@@ -4,7 +4,7 @@ import Inventory from './components/Inventory';
 import Shop from './components/Shop';
 import InventoryModal from './components/InventoryModal';
 import VillagerInventoryModal from './components/VillagerInventoryModal';
-import { Coins, Volume2, VolumeX, RotateCcw } from 'lucide-react';
+import { Coins, Volume2, VolumeX, RotateCcw, Pointer } from 'lucide-react';
 import { TILE_COSTS, SHOP_ITEM_PRICES } from './constants/tileCosts';
 import { getHutTiles, areHutTilesEmpty } from './utils/tileUtils';
 
@@ -52,6 +52,7 @@ function App() {
   const [treeLocks, setTreeLocks] = useState<Set<string>>(new Set());
   const [villagerInventories, setVillagerInventories] = useState<Record<string, VillagerInventory>>({});
   const [selectedVillagerId, setSelectedVillagerId] = useState<string | null>(null);
+  const [isInfoMode, setIsInfoMode] = useState(false);
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
   const [placeAudio] = useState(() => {
     let audioContext: AudioContext | null = null;
@@ -369,6 +370,13 @@ function App() {
       setAudioInitialized(true);
     }
 
+    if (isInfoMode) {
+      if (placedTiles[tileId] === 'villagers') {
+        setSelectedVillagerId(tileId);
+      }
+      return;
+    }
+
     if (placedTiles[tileId] === 'villagers') {
       setSelectedVillagerId(tileId);
       return;
@@ -521,6 +529,20 @@ function App() {
         hutPreviewTiles={hutPreviewTiles}
         villagerActions={villagerActions}
       />
+      <div className="fixed bottom-8 right-8 flex items-center gap-3 z-40">
+        <button
+          onClick={() => setIsInfoMode(!isInfoMode)}
+          className={`px-4 py-3 rounded-lg border-4 transition-all ${
+            isInfoMode
+              ? 'bg-blue-600 border-blue-400'
+              : 'bg-slate-800 border-slate-700 hover:border-slate-500'
+          }`}
+          title={isInfoMode ? "Désactiver le mode info" : "Activer le mode info"}
+        >
+          <Pointer className={`w-8 h-8 ${isInfoMode ? 'text-white' : 'text-slate-400'}`} />
+        </button>
+      </div>
+
       <Inventory
         selectedTile={selectedTile}
         onSelectTile={setSelectedTile}
