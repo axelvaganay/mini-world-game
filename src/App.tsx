@@ -3,6 +3,7 @@ import IsometricGrid from './components/IsometricGrid';
 import Inventory from './components/Inventory';
 import Shop from './components/Shop';
 import InventoryModal from './components/InventoryModal';
+import VillagerInventoryModal from './components/VillagerInventoryModal';
 import { Coins, Volume2, VolumeX, RotateCcw } from 'lucide-react';
 import { TILE_COSTS, SHOP_ITEM_PRICES } from './constants/tileCosts';
 import { getHutTiles, areHutTilesEmpty } from './utils/tileUtils';
@@ -22,6 +23,10 @@ interface VillagerAction {
   targetTree: string | null;
   startTime: number;
   animationPhase: number;
+}
+
+interface VillagerInventory {
+  wood: number;
 }
 
 
@@ -45,6 +50,8 @@ function App() {
   const [hutPreviewTiles, setHutPreviewTiles] = useState<string[]>([]);
   const [villagerActions, setVillagerActions] = useState<Record<string, VillagerAction>>({});
   const [treeLocks, setTreeLocks] = useState<Set<string>>(new Set());
+  const [villagerInventories, setVillagerInventories] = useState<Record<string, VillagerInventory>>({});
+  const [selectedVillagerId, setSelectedVillagerId] = useState<string | null>(null);
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
   const [placeAudio] = useState(() => {
     let audioContext: AudioContext | null = null;
@@ -227,6 +234,23 @@ function App() {
             delete updated[villagerId];
             return updated;
           });
+
+          setMoney(prev => prev + 2);
+
+          const moneyText: FloatingText = {
+            id: Date.now(),
+            amount: 2,
+            isPositive: true,
+            location: 'wallet'
+          };
+          setFloatingTexts(prev => [...prev, moneyText]);
+
+          setVillagerInventories(prev => ({
+            ...prev,
+            [villagerId]: {
+              wood: (prev[villagerId]?.wood || 0) + 1
+            }
+          }));
         }
       }
     });
@@ -343,6 +367,11 @@ function App() {
     // Initialiser l'audio au premier clic utilisateur
     if (!audioInitialized) {
       setAudioInitialized(true);
+    }
+
+    if (placedTiles[tileId] === 'villagers') {
+      setSelectedVillagerId(tileId);
+      return;
     }
 
     if (selectedTile === 'eraser') {
@@ -512,6 +541,12 @@ function App() {
         onClose={() => setIsInventoryOpen(false)}
         onDragStart={handleInventoryDragStart}
         unlockedItems={unlockedShopItems}
+      />
+      <VillagerInventoryModal
+        isOpen={selectedVillagerId !== null}
+        onClose={() => setSelectedVillagerId(null)}
+        villagerId={selectedVillagerId || ''}
+        inventory={selectedVillagerId ? (villagerInventories[selectedVillagerId] || { wood: 0 }) : { wood: 0 }}
       />
     </div>
   );
