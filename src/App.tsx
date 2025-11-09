@@ -4,7 +4,7 @@ import Inventory from './components/Inventory';
 import Shop from './components/Shop';
 import InventoryModal from './components/InventoryModal';
 import VillagerInventoryModal from './components/VillagerInventoryModal';
-import { Coins, Volume2, VolumeX, RotateCcw, Pointer } from 'lucide-react';
+import { Coins, Volume2, VolumeX, RotateCcw, Pointer, Users } from 'lucide-react';
 import { TILE_COSTS, SHOP_ITEM_PRICES } from './constants/tileCosts';
 import { getHutTiles, areHutTilesEmpty } from './utils/tileUtils';
 
@@ -54,6 +54,16 @@ function App() {
   const [selectedVillagerId, setSelectedVillagerId] = useState<string | null>(null);
   const [isInfoMode, setIsInfoMode] = useState(false);
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
+
+  const countVillagers = () => {
+    return Object.values(placedTiles).filter(tile => tile === 'villagers').length;
+  };
+
+  const countHuts = () => {
+    return Object.values(placedTiles).filter(tile => tile === 'hut').length;
+  };
+
+  const maxVillagers = 2 + (countHuts() * 3);
   const [placeAudio] = useState(() => {
     let audioContext: AudioContext | null = null;
     
@@ -495,6 +505,13 @@ function App() {
       onMouseLeave={handleMouseUp}
       style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
     >
+      <div className="fixed top-8 left-8 flex items-center gap-4 z-50">
+        <div className="flex items-center gap-2 bg-slate-800 px-6 py-3 rounded-lg border-4 border-slate-700">
+          <Users className="w-8 h-8 text-cyan-400" />
+          <span className="text-3xl font-bold text-cyan-400">{countVillagers()}/{maxVillagers}</span>
+        </div>
+      </div>
+
       <div className="fixed top-8 right-8 flex items-center gap-4 z-50">
         <button
           onClick={() => setBackgroundMusicEnabled(!backgroundMusicEnabled)}
@@ -507,7 +524,7 @@ function App() {
             <VolumeX className="w-8 h-8 text-slate-400" />
           )}
         </button>
-        
+
         <button
           onClick={resetView}
           className="bg-slate-800 px-4 py-3 rounded-lg border-4 border-slate-700 hover:border-slate-500 transition-all"
@@ -515,7 +532,7 @@ function App() {
         >
           <RotateCcw className="w-8 h-8 text-blue-400" />
         </button>
-        
+
         <div className="flex items-center gap-2 bg-slate-800 px-6 py-3 rounded-lg border-4 border-slate-700">
           <Coins className="w-8 h-8 text-yellow-400" />
           <span className="text-3xl font-bold text-yellow-400">{money}</span>
