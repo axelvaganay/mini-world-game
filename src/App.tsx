@@ -53,6 +53,7 @@ function App() {
   const [villagerInventories, setVillagerInventories] = useState<Record<string, VillagerInventory>>({});
   const [selectedVillagerId, setSelectedVillagerId] = useState<string | null>(null);
   const [isInfoMode, setIsInfoMode] = useState(false);
+  const [maxReachedShake, setMaxReachedShake] = useState(false);
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
 
   const countVillagers = () => {
@@ -472,6 +473,33 @@ function App() {
 
         placeAudio();
       }
+    } else if (selectedTile === 'villagers') {
+      const cost = TILE_COSTS[selectedTile] || 0;
+      const currentVillagers = countVillagers();
+
+      if (currentVillagers >= maxVillagers) {
+        setMaxReachedShake(true);
+        setTimeout(() => setMaxReachedShake(false), 500);
+        return;
+      }
+
+      if (money >= cost) {
+        setPlacedTiles(prev => ({
+          ...prev,
+          [tileId]: selectedTile
+        }));
+        setMoney(prev => prev - cost);
+
+        const newText: FloatingText = {
+          id: Date.now(),
+          amount: cost,
+          isPositive: false,
+          location: 'inventory'
+        };
+        setFloatingTexts(prev => [...prev, newText]);
+
+        placeAudio();
+      }
     } else if (selectedTile) {
       const cost = TILE_COSTS[selectedTile] || 0;
       if (money >= cost) {
@@ -481,7 +509,6 @@ function App() {
         }));
         setMoney(prev => prev - cost);
 
-        // Afficher le texte flottant pour la perte au-dessus de l'inventaire
         const newText: FloatingText = {
           id: Date.now(),
           amount: cost,
@@ -506,9 +533,13 @@ function App() {
       style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
     >
       <div className="fixed top-8 left-8 flex items-center gap-4 z-50">
-        <div className="flex items-center gap-2 bg-slate-800 px-6 py-3 rounded-lg border-4 border-slate-700">
-          <Users className="w-8 h-8 text-cyan-400" />
-          <span className="text-3xl font-bold text-cyan-400">{countVillagers()}/{maxVillagers}</span>
+        <div className={`flex items-center gap-2 bg-slate-800 px-6 py-3 rounded-lg border-4 transition-colors ${
+          maxReachedShake ? 'border-red-500' : 'border-slate-700'
+        }`}>
+          <Users className={`w-8 h-8 ${maxReachedShake ? 'text-red-500' : 'text-cyan-400'}`} />
+          <span className={`text-3xl font-bold ${maxReachedShake ? 'shake-red' : 'text-cyan-400'}`}>
+            {countVillagers()}/{maxVillagers}
+          </span>
         </div>
       </div>
 
@@ -590,10 +621,12 @@ function App() {
       <Inventory
         selectedTile={selectedTile}
         onSelectTile={setSelectedTile}
-        onOpenShop={() => setIsShopOpen(true)}
-        onOpenInventory={() => setIsInventoryOpen(true)}
+        onOpenShop={() => setIsShopOpen(!isShopOpen)}
+        onOpenInventory={() => setIsInventoryOpen(!isInventoryOpen)}
         inventorySlots={inventorySlots}
         onInventorySlotChange={setInventorySlots}
+        isShopOpen={isShopOpen}
+        isInventoryOpen={isInventoryOpen}
       />
       <Shop
         isOpen={isShopOpen}

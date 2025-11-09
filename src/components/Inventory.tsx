@@ -9,9 +9,11 @@ interface InventoryProps {
   onOpenInventory: () => void;
   inventorySlots: (TileType)[];
   onInventorySlotChange: (slots: (TileType)[]) => void;
+  isShopOpen: boolean;
+  isInventoryOpen: boolean;
 }
 
-function Inventory({ selectedTile, onSelectTile, onOpenShop, onOpenInventory, inventorySlots, onInventorySlotChange }: InventoryProps) {
+function Inventory({ selectedTile, onSelectTile, onOpenShop, onOpenInventory, inventorySlots, onInventorySlotChange, isShopOpen, isInventoryOpen }: InventoryProps) {
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
   };
@@ -60,15 +62,19 @@ function Inventory({ selectedTile, onSelectTile, onOpenShop, onOpenInventory, in
     <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 flex gap-2 items-center z-50">
       <button
         onClick={onOpenShop}
-        className="w-16 h-16 bg-slate-800 transition-all flex items-center justify-center border-4 border-slate-700 hover:border-slate-500 relative mr-2"
+        className={`w-16 h-16 bg-slate-800 transition-all flex items-center justify-center border-4 relative mr-2 ${
+          isShopOpen ? 'border-yellow-400' : 'border-slate-700 hover:border-slate-500'
+        }`}
       >
         <Store className="w-8 h-8 text-yellow-400" />
         <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-slate-900"></div>
       </button>
-      
+
       <button
         onClick={onOpenInventory}
-        className="w-16 h-16 bg-slate-800 transition-all flex items-center justify-center border-4 border-slate-700 hover:border-slate-500 relative mr-2"
+        className={`w-16 h-16 bg-slate-800 transition-all flex items-center justify-center border-4 relative mr-2 ${
+          isInventoryOpen ? 'border-blue-400' : 'border-slate-700 hover:border-slate-500'
+        }`}
         title="Open inventory"
       >
         <Package className="w-8 h-8 text-blue-400" />
