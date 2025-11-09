@@ -204,6 +204,33 @@ function App() {
             // Échanger villager et grass
             newTiles[randomMove.id] = 'villagers';
             newTiles[tileId] = 'grass';
+
+            // Transférer l'inventaire de l'ancienne case vers la nouvelle
+            setVillagerInventories(prev => {
+              const newInventories = { ...prev };
+
+              // Si l'ancienne case avait un inventaire, le transférer
+              if (newInventories[tileId]) {
+                newInventories[randomMove.id] = newInventories[tileId];
+                delete newInventories[tileId];
+              }
+
+              return newInventories;
+            });
+
+            // Transférer aussi l'action de coupe si elle existe
+            setVillagerActions(prev => {
+              if (prev[tileId]) {
+                const newActions = { ...prev };
+                newActions[randomMove.id] = {
+                  ...prev[tileId],
+                  tileId: randomMove.id
+                };
+                delete newActions[tileId];
+                return newActions;
+              }
+              return prev;
+            });
           }
         });
 
