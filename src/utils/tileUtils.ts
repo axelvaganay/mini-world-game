@@ -38,3 +38,12 @@ export const getTileColor = (
 
   return colorMap[tileType || ''] || { fill: '#6b7280', stroke: '#4b5563' };
 };
+
+export const isHutOrigin = (tileId: string, placedTiles: Record<string, any>): boolean => {
+  if (placedTiles[tileId] !== 'hut') return false;
+
+  const [row, col] = tileId.split('-').map(Number);
+  const topLeftTileId = `${row}-${col}`;
+
+  return tileId === topLeftTileId;
+};

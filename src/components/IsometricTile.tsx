@@ -5,6 +5,7 @@ import WaterTile from './tiles/WaterTile';
 import HutTile from './tiles/HutTile';
 import StumpTile from './tiles/StumpTile';
 import VillagersTile from './tiles/VillagersTile';
+import { isHutOrigin } from '../utils/tileUtils';
 
 interface VillagerAction {
   tileId: string;
@@ -22,6 +23,8 @@ interface IsometricTileProps {
   isHovered: boolean;
   isHutPreview: boolean;
   tileType: TileType;
+  tileId: string;
+  placedTiles: Record<string, TileType>;
   villagerAction: VillagerAction | null;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
@@ -37,6 +40,8 @@ function IsometricTile({
   isHovered,
   isHutPreview,
   tileType,
+  tileId,
+  placedTiles,
   villagerAction,
   onMouseEnter,
   onMouseLeave,
@@ -86,7 +91,10 @@ function IsometricTile({
       case 'water':
         return <WaterTile x={x} y={y} />;
       case 'hut':
-        return <HutTile x={x} y={y} />;
+        if (isHutOrigin(tileId, placedTiles)) {
+          return <HutTile x={x} y={y} />;
+        }
+        return null;
       case 'stump':
         return <StumpTile x={x} y={y} />;
       case 'villagers':

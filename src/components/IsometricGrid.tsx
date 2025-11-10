@@ -70,6 +70,8 @@ function IsometricGrid({ placedTiles, onTileClick, onTileHover, onTileLeave, zoo
               isHovered={tile.isHovered}
               isHutPreview={tile.isHutPreview}
               tileType={tile.tileType}
+              tileId={tile.id}
+              placedTiles={placedTiles}
               villagerAction={tile.villagerAction}
               onMouseEnter={() => {
                 setHoveredTile(tile.id);
