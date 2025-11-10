@@ -451,15 +451,12 @@ function App() {
       const cost = TILE_COSTS[selectedTile] || 0;
 
       if (money >= cost && areHutTilesEmpty(hutTiles, placedTiles)) {
-        // Placer la hutte sur les 4 cases
-        setPlacedTiles(prev => {
-          const newTiles = { ...prev };
-          hutTiles.forEach(tileId => {
-            newTiles[tileId] = 'hut';
-          });
-          return newTiles;
-        });
-        
+        // Placer la hutte uniquement sur la tuile d'origine
+        setPlacedTiles(prev => ({
+          ...prev,
+          [tileId]: 'hut'
+        }));
+
         setMoney(prev => prev - cost);
 
         // Afficher le texte flottant pour la perte au-dessus de l'inventaire

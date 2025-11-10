@@ -15,7 +15,25 @@ export const areHutTilesEmpty = (
   return tileIds.every(tileId => {
     const [row, col] = tileId.split('-').map(Number);
     if (row < 0 || row >= 10 || col < 0 || col >= 10) return false;
-    return !placedTiles[tileId];
+
+    // Vérifier si la tuile est occupée
+    if (placedTiles[tileId]) return false;
+
+    // Vérifier si une hutte adjacente occupe cette tuile
+    for (let dr = -1; dr <= 0; dr++) {
+      for (let dc = -1; dc <= 0; dc++) {
+        const adjacentTileId = `${row + dr}-${col + dc}`;
+        if (placedTiles[adjacentTileId] === 'hut') {
+          const [adjRow, adjCol] = adjacentTileId.split('-').map(Number);
+          const hutTiles = getHutTiles(adjacentTileId);
+          if (hutTiles.includes(tileId)) {
+            return false;
+          }
+        }
+      }
+    }
+
+    return true;
   });
 };
 
@@ -40,10 +58,5 @@ export const getTileColor = (
 };
 
 export const isHutOrigin = (tileId: string, placedTiles: Record<string, any>): boolean => {
-  if (placedTiles[tileId] !== 'hut') return false;
-
-  const [row, col] = tileId.split('-').map(Number);
-  const topLeftTileId = `${row}-${col}`;
-
-  return tileId === topLeftTileId;
+  return placedTiles[tileId] === 'hut';
 };
