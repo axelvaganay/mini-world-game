@@ -451,10 +451,12 @@ function App() {
       const cost = TILE_COSTS[selectedTile] || 0;
 
       if (money >= cost && areHutTilesEmpty(hutTiles, placedTiles)) {
-        // Placer la hutte uniquement sur la tuile d'origine
+        // Placer la hutte aligné sur la tuile du bas
+        const [row, col] = tileId.split('-').map(Number);
+        const bottomRightTile = `${row + 1}-${col + 1}`;
         setPlacedTiles(prev => ({
           ...prev,
-          [tileId]: 'hut'
+          [bottomRightTile]: 'hut' // Placer sur la case la plus basse
         }));
 
         setMoney(prev => prev - cost);
