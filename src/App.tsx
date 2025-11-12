@@ -424,13 +424,20 @@ function App() {
       // Vérifier si la tuile contient quelque chose avant de l'effacer
       const existingTile = placedTiles[tileId];
       if (existingTile) {
-        // Effacer la tuile et regagner 1 pièce
         setPlacedTiles(prev => {
           const newTiles = { ...prev };
-          delete newTiles[tileId];
+
+          // Si c'est une hutte, effacer tous les 4 tiles
+          if (existingTile === 'hut') {
+            const hutTiles = getHutTiles(tileId);
+            hutTiles.forEach(tile => delete newTiles[tile]);
+          } else {
+            delete newTiles[tileId];
+          }
+
           return newTiles;
         });
-        
+
         // Ajouter 1 pièce
         setMoney(prev => prev + 1);
 
@@ -442,7 +449,7 @@ function App() {
           location: 'wallet'
         };
         setFloatingTexts(prev => [...prev, newText]);
-        
+
         // Jouer le son
         placeAudio();
       }
@@ -451,12 +458,9 @@ function App() {
       const cost = TILE_COSTS[selectedTile] || 0;
 
       if (money >= cost && areHutTilesEmpty(hutTiles, placedTiles)) {
-        // Placer la hutte aligné sur la tuile du bas
-        const [row, col] = tileId.split('-').map(Number);
-        const bottomRightTile = `${row + 1}-${col + 1}`;
         setPlacedTiles(prev => ({
           ...prev,
-          [bottomRightTile]: 'hut' // Placer sur la case la plus basse
+          [tileId]: 'hut'
         }));
 
         setMoney(prev => prev - cost);
