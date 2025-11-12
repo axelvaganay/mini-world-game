@@ -7,7 +7,7 @@ interface StumpTileProps {
 
 function StumpTile({ x, y }: StumpTileProps) {
   return (
-    <g>
+    <g style={{ pointerEvents: 'none' }}>
       <GrassTile x={x} y={y} />
 
       <rect

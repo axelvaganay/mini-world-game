@@ -19,7 +19,7 @@ function VillagersTile({ x, y, villagerAction, animationOffset = { x: 0, y: 0 } 
   const isCutting = villagerAction?.action === 'cutting';
 
   return (
-    <g style={{ transition: 'transform 1.5s ease-in-out' }} transform={`translate(${animationOffset.x}, ${animationOffset.y})`}>
+    <g style={{ transition: 'transform 1.5s ease-in-out', pointerEvents: 'none' }} transform={`translate(${animationOffset.x}, ${animationOffset.y})`}>
       <GrassTile x={x} y={y} />
 
       <circle cx={x} cy={y - 22} r="6" fill="#fde68a" stroke="#fbbf24" strokeWidth="1" />

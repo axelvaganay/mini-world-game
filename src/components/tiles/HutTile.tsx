@@ -7,7 +7,7 @@ interface HutTileProps {
 
 function HutTile({ x, y }: HutTileProps) {
   return (
-    <g>
+    <g style={{ pointerEvents: 'none' }}>
       <GrassTile x={x} y={y} />
 
       <image
@@ -16,7 +16,7 @@ function HutTile({ x, y }: HutTileProps) {
         y={y - 96}
         width="128"
         height="128"
-        style={{ imageRendering: 'pixelated' }}
+        style={{ imageRendering: 'pixelated', pointerEvents: 'none' }}
       />
     </g>
   );

@@ -5,7 +5,7 @@ interface GrassTileProps {
 
 function GrassTile({ x, y }: GrassTileProps) {
   return (
-    <g>
+    <g style={{ pointerEvents: 'none' }}>
       <rect x={x - 8} y={y + 8} width="3" height="3" fill="#15803d" />
       <rect x={x - 3} y={y + 10} width="3" height="3" fill="#15803d" />
       <rect x={x + 2} y={y + 8} width="3" height="3" fill="#15803d" />

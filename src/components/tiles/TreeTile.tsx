@@ -7,7 +7,7 @@ interface TreeTileProps {
 
 function TreeTile({ x, y }: TreeTileProps) {
   return (
-    <g>
+    <g style={{ pointerEvents: 'none' }}>
       <GrassTile x={x} y={y} />
 
       <rect x={x - 4} y={y - 12} width="8" height="24" fill="#92400e" />
