@@ -1,5 +1,12 @@
 # Tile Components
 
+# Pour jouer avec la position des images il faut jouer avec:
+```tsx
+x={x - 40} // monter descentre
+y={y - 5 } // gauche droite
+const scale = 1.25; // grossir ou rappetissir la tuile
+```
+
 This folder contains all tile rendering components used in the isometric grid.
 
 ## Structure
