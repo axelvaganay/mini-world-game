@@ -13,7 +13,7 @@ function HutTile({ x, y }: HutTileProps) {
       <image
         href="/asset/tile/4x4hut.png"
         x={x - 64}
-        y={y - 96}
+        y={y - 80}
         width="128"
         height="128"
         style={{ imageRendering: 'pixelated', pointerEvents: 'none' }}
