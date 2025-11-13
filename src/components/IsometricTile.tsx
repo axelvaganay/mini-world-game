@@ -78,7 +78,7 @@ function IsometricTile({
     if (tileType === 'water') return '#3b82f6';
     if (tileType === 'hut') return '#16a34a';
     if (tileType === 'villagers') return '#16a34a';
-    if (tileType === 'stump') return '#78350f';
+    if (tileType === 'stump') return '#16a34a';
     return '#4b5563';
   };
 
