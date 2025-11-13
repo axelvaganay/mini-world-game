@@ -13,9 +13,9 @@ function HutTile({ x, y }: HutTileProps) {
   return (
     <g style={{ pointerEvents: 'none' }}>
       <image
-        href="/asset/tile/4x4hut.png"
-        x={originX - 64}
-        y={originY - 60}
+        href="/asset/tile/2x2hut.png"
+        x={originX - 30}  // un - grand nb le decale a gauche
+        y={originY - 75}  // un - grand nb le remonte
         width="128"
         height="128"
         style={{ imageRendering: 'pixelated', pointerEvents: 'none' }}
