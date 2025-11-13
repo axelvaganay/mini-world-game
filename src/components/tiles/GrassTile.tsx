@@ -6,11 +6,14 @@ interface GrassTileProps {
 function GrassTile({ x, y }: GrassTileProps) {
   return (
     <g style={{ pointerEvents: 'none' }}>
-      <rect x={x - 8} y={y + 8} width="3" height="3" fill="#15803d" />
-      <rect x={x - 3} y={y + 10} width="3" height="3" fill="#15803d" />
-      <rect x={x + 2} y={y + 8} width="3" height="3" fill="#15803d" />
-      <rect x={x - 6} y={y + 14} width="3" height="3" fill="#15803d" />
-      <rect x={x + 4} y={y + 13} width="3" height="3" fill="#15803d" />
+      <image
+        href="/asset/tile/1x1grass.png"
+        x={x - 32}
+        y={y}
+        width="64"
+        height="32"
+        style={{ imageRendering: 'pixelated' }}
+      />
     </g>
   );
 }

@@ -1,5 +1,3 @@
-import GrassTile from './GrassTile';
-
 interface VillagerAction {
   tileId: string;
   action: 'cutting' | null;
@@ -20,7 +18,14 @@ function VillagersTile({ x, y, villagerAction, animationOffset = { x: 0, y: 0 } 
 
   return (
     <g style={{ transition: 'transform 1.5s ease-in-out', pointerEvents: 'none' }} transform={`translate(${animationOffset.x}, ${animationOffset.y})`}>
-      <GrassTile x={x} y={y} />
+      <image
+        href="/asset/tile/1x1grass.png"
+        x={x - 32}
+        y={y}
+        width="64"
+        height="32"
+        style={{ imageRendering: 'pixelated' }}
+      />
 
       <circle cx={x} cy={y - 22} r="6" fill="#fde68a" stroke="#fbbf24" strokeWidth="1" />
       <rect x={x - 7} y={y - 16} width="14" height="12" rx="2" fill="#2563eb" stroke="#1e40af" strokeWidth="1" />
