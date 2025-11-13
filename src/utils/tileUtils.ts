@@ -58,5 +58,9 @@ export const getTileColor = (
 };
 
 export const isHutOrigin = (tileId: string, placedTiles: Record<string, any>): boolean => {
-  return placedTiles[tileId] === 'hut';
+  if (placedTiles[tileId] !== 'hut') return false;
+  // Only render at the bottom-right tile of the 2x2 block
+  const [row, col] = tileId.split('-').map(Number);
+  const originTile = `${row - 1}-${col - 1}`;
+  return placedTiles[originTile] === 'hut';
 };

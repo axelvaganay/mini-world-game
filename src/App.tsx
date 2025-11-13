@@ -458,9 +458,12 @@ function App() {
       const cost = TILE_COSTS[selectedTile] || 0;
 
       if (money >= cost && areHutTilesEmpty(hutTiles, placedTiles)) {
+        const [row, col] = tileId.split('-').map(Number);
+        const bottomRightTile = `${row + 1}-${col + 1}`;
         setPlacedTiles(prev => ({
           ...prev,
-          [tileId]: 'hut'
+          [tileId]: 'hut',
+          [bottomRightTile]: 'hut'
         }));
 
         setMoney(prev => prev - cost);
