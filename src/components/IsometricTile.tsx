@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { TileType } from '../App';
 import GrassTile from './tiles/GrassTile';
 import TreeTile from './tiles/TreeTile';
@@ -30,6 +31,7 @@ interface IsometricTileProps {
   onMouseLeave: () => void;
   onClick: () => void;
   animationOffset?: { x: number; y: number };
+  setPlacedTiles: React.Dispatch<React.SetStateAction<Record<string, TileType>>>;
 }
 
 function IsometricTile({
@@ -47,9 +49,14 @@ function IsometricTile({
   onMouseLeave,
   onClick,
   animationOffset = { x: 0, y: 0 },
+  setPlacedTiles,
 }: IsometricTileProps) {
   const halfWidth = width / 2;
   const halfHeight = height / 2;
+
+  const handleConvert = useCallback(() => {
+    setPlacedTiles(prev => ({ ...prev, [tileId]: 'tree' }));
+  }, [tileId, setPlacedTiles]);
 
   const points = `
     ${x},${y}
@@ -96,7 +103,7 @@ function IsometricTile({
         }
         return null;
       case 'stump':
-        return <StumpTile x={x} y={y} />;
+        return <StumpTile x={x} y={y} onConvert={handleConvert} />;
       case 'villagers':
         return <VillagersTile x={x} y={y} villagerAction={villagerAction} animationOffset={animationOffset} />;
       default:

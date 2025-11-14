@@ -7,6 +7,7 @@ import VillagerInventoryModal from './components/VillagerInventoryModal';
 import { Coins, Volume2, VolumeX, RotateCcw, Pointer, Users } from 'lucide-react';
 import { TILE_COSTS, SHOP_ITEM_PRICES } from './constants/tileCosts';
 import { getHutTiles, areHutTilesEmpty } from './utils/tileUtils';
+import { INITIAL_MONEY, CUT_TREE_DURATION } from './constants/admin';
 
 export type TileType = 'grass' | 'tree' | 'water' | 'hut' | 'villagers' | 'stump' | 'eraser' | null;
 
@@ -33,7 +34,7 @@ interface VillagerInventory {
 function App() {
   const [selectedTile, setSelectedTile] = useState<TileType>('grass');
   const [placedTiles, setPlacedTiles] = useState<Record<string, TileType>>({});
-  const [money, setMoney] = useState(1000);
+  const [money, setMoney] = useState(INITIAL_MONEY);
   const [floatingTexts, setFloatingTexts] = useState<FloatingText[]>([]);
   const [audioInitialized, setAudioInitialized] = useState(false);
   const [backgroundMusicEnabled, setBackgroundMusicEnabled] = useState(false);
@@ -258,7 +259,7 @@ function App() {
       const action = villagerActions[villagerId];
       if (action.action === 'cutting' && action.targetTree) {
         const elapsed = Date.now() - action.startTime;
-        if (elapsed >= 10000) {
+        if (elapsed >= CUT_TREE_DURATION * 1000) {
           setPlacedTiles(prev => ({
             ...prev,
             [action.targetTree!]: 'stump'
@@ -602,6 +603,7 @@ function App() {
 
       <IsometricGrid
         placedTiles={placedTiles}
+        setPlacedTiles={setPlacedTiles}
         onTileClick={handleTileClick}
         onTileHover={handleTileHover}
         onTileLeave={handleTileLeave}

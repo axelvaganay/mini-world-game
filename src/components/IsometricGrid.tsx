@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react'; 
 import IsometricTile from './IsometricTile';
 import { TileType } from '../App';
 import { GRID_SIZE, TILE_WIDTH, TILE_HEIGHT } from '../constants/gridConfig';
@@ -13,6 +13,7 @@ interface VillagerAction {
 
 interface IsometricGridProps {
   placedTiles: Record<string, TileType>;
+  setPlacedTiles: React.Dispatch<React.SetStateAction<Record<string, TileType>>>;
   onTileClick: (tileId: string) => void;
   onTileHover: (tileId: string) => void;
   onTileLeave: () => void;
@@ -22,9 +23,9 @@ interface IsometricGridProps {
   villagerActions: Record<string, VillagerAction>;
 }
 
-function IsometricGrid({ placedTiles, onTileClick, onTileHover, onTileLeave, zoom, pan, hutPreviewTiles, villagerActions }: IsometricGridProps) {
+function IsometricGrid({ placedTiles, onTileClick, onTileHover, onTileLeave, zoom, pan, hutPreviewTiles, villagerActions, setPlacedTiles }: IsometricGridProps) {
   const [hoveredTile, setHoveredTile] = useState<string | null>(null);
-
+  
   const tiles = [];
 
   for (let row = 0; row < GRID_SIZE; row++) {
@@ -73,6 +74,7 @@ function IsometricGrid({ placedTiles, onTileClick, onTileHover, onTileLeave, zoo
               tileId={tile.id}
               placedTiles={placedTiles}
               villagerAction={tile.villagerAction}
+              setPlacedTiles={setPlacedTiles} // 🎯 Passer setPlacedTiles directement
               onMouseEnter={() => {
                 setHoveredTile(tile.id);
                 onTileHover(tile.id);
